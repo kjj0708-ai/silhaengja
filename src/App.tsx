@@ -39,7 +39,7 @@ const Logo = ({ size = 24 }: { size?: number }) => {
         </svg>
       ) : (
         <img 
-          src="/logo.png" 
+          src={`${import.meta.env.BASE_URL}logo.png`}
           alt="Logo" 
           className="w-full h-full object-contain"
           onError={() => setError(true)}
