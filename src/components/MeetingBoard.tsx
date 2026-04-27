@@ -337,7 +337,7 @@ export default function MeetingBoard({
            </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {meetings.map(m => {
             const isRegistered = myRegistrations.has(m.id);
             const isFull = m.attendeesCount >= m.maxAttendees;
@@ -350,117 +350,85 @@ export default function MeetingBoard({
                      참여 확정됨
                    </div>
                 )}
-                
-                <div className="p-6 flex flex-col gap-5">
+
+                <div className="p-4 flex flex-col gap-3">
                   {editingMeetingId === m.id ? (
-                    <div className="flex flex-col gap-3 p-3 bg-[#0f172a] rounded-lg border border-slate-800 animate-in zoom-in duration-200">
+                    <div className="flex flex-col gap-2 p-3 bg-[#0f172a] rounded-lg border border-slate-800 animate-in zoom-in duration-200">
                        <input type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} className="bg-transparent text-[14px] font-bold p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-white w-full" />
                        <div className="flex gap-2">
                          <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="bg-transparent text-[11px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-400 flex-1 font-mono" />
                          <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} className="bg-transparent text-[11px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-400 w-24 font-mono" />
                          <input type="number" value={editMax} onChange={e => setEditMax(Number(e.target.value))} className="bg-transparent text-[11px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-400 w-16 font-mono" />
                        </div>
-                       <div className="flex justify-end gap-2 mt-2">
-                          <button onClick={() => setEditingMeetingId(null)} className="p-2 text-slate-500 hover:text-slate-300 transition-colors"><X size={16}/></button>
-                          <button onClick={() => handleUpdateMeeting(m.id)} className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors"><Check size={16}/></button>
+                       <div className="flex justify-end gap-2">
+                          <button onClick={() => setEditingMeetingId(null)} className="p-1.5 text-slate-500 hover:text-slate-300 transition-colors"><X size={15}/></button>
+                          <button onClick={() => handleUpdateMeeting(m.id)} className="p-1.5 text-emerald-400 hover:text-emerald-300 transition-colors"><Check size={15}/></button>
                        </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-3">
-                        <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors">{m.title}</h4>
-                        {adminRole === 'manager' && (
-                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => handleStartEdit(m)} className="p-1.5 text-slate-600 hover:text-indigo-400 transition-colors">
-                                <Pencil size={12} />
-                              </button>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-[14px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors">{m.title}</h4>
+                          {adminRole === 'manager' && (
+                            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => handleStartEdit(m)} className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"><Pencil size={11} /></button>
                               {confirmDeleteMtg === m.id ? (
-                                <button onClick={() => handleDeleteMeeting(m.id)} className="p-1.5 text-xs font-bold text-white bg-rose-600 rounded whitespace-nowrap">
-                                  진짜 삭제?
-                                </button>
+                                <button onClick={() => handleDeleteMeeting(m.id)} className="p-1 text-[10px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">진짜 삭제?</button>
                               ) : (
-                                <button onClick={() => setConfirmDeleteMtg(m.id)} className="p-1.5 text-slate-600 hover:text-rose-500 transition-colors">
-                                  <Trash2 size={12} />
-                                </button>
+                                <button onClick={() => setConfirmDeleteMtg(m.id)} className="p-1 text-slate-600 hover:text-rose-500 transition-colors"><Trash2 size={11} /></button>
                               )}
-                          </div>
-                        )}
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                          <CalendarCheck size={11} className="text-slate-600" />{m.date}
+                        </p>
                       </div>
-                      <p className="text-[10px] text-slate-500 font-bold font-mono flex items-center gap-1.5 uppercase tracking-widest mt-1">
-                        <CalendarCheck size={12} className="text-slate-600" />
-                        {m.date}
-                      </p>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <div className="flex-1 bg-[#0f172a] h-1.5 rounded-full overflow-hidden border border-slate-800">
-                      <div 
-                        className={`h-full transition-all duration-700 ${isFull ? 'bg-amber-500' : 'bg-indigo-500'}`} 
-                        style={{ width: `${(m.attendeesCount / m.maxAttendees) * 100}%` }}
-                      ></div>
+                      <div className={`h-full transition-all duration-700 ${isFull ? 'bg-amber-500' : 'bg-indigo-500'}`} style={{ width: `${(m.attendeesCount / m.maxAttendees) * 100}%` }}></div>
                     </div>
                     <span className="text-[10px] font-mono font-black text-slate-400 whitespace-nowrap">
-                       {m.attendeesCount.toString().padStart(2, '0')} / {m.maxAttendees.toString().padStart(2, '0')} <span className="opacity-40 uppercase">점유율</span>
+                      {m.attendeesCount} / {m.maxAttendees} <span className="opacity-40 text-[9px]">명</span>
                     </span>
                   </div>
 
-                  <div className="min-h-[24px] flex flex-wrap gap-1">
-                    {attendees.map((reg) => (
-                       <span key={reg.id} className="text-[10px] font-bold bg-[#0f172a] border border-slate-700 text-slate-300 px-2 py-0.5 rounded hover:border-indigo-500/50 hover:text-white transition-colors">
-                         {reg.userName}
-                       </span>
-                    ))}
-                    {attendees.length === 0 && <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest self-center italic">참여자를 기다리는 중...</span>}
-                  </div>
-
-                  <div className="pt-2">
-                    {!isRegistered ? (
-                      <button 
-                        onClick={() => handleRegister(m)}
-                        disabled={isFull}
-                        className={`w-full text-[11px] font-bold px-5 py-2.5 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
-                          isFull 
-                          ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
-                          : 'bg-emerald-600 text-white hover:bg-emerald-500'
-                        }`}
-                      >
-                        {isFull ? '정원 초과' : '참여 신청하기'}
-                      </button>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex items-center justify-center gap-2 text-[10px] font-black text-emerald-400 bg-emerald-900/20 px-3 py-2.5 rounded-lg border border-emerald-500/30 uppercase tracking-tighter">
-                          <Check size={14} strokeWidth={3} /> 참여 중
-                        </div>
-                        {confirmDeleteReg === m.id ? (
-                          <button 
-                            onClick={() => handleCancel(m)}
-                            className="text-[10px] font-black text-white bg-rose-600 px-3 py-2.5 rounded-lg transition-all border border-rose-500 uppercase tracking-tighter"
-                          >
-                            정말 취소?
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => setConfirmDeleteReg(m.id)}
-                            className="text-[10px] font-black text-slate-400 hover:text-white hover:bg-rose-900/30 px-3 py-2.5 rounded-lg transition-all border border-slate-700 hover:border-rose-500/50 uppercase tracking-tighter"
-                          >
-                            참여 취소
-                          </button>
-                        )}
+                  {!isRegistered ? (
+                    <button
+                      onClick={() => handleRegister(m)}
+                      disabled={isFull}
+                      className={`w-full text-[11px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
+                        isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                      }`}
+                    >
+                      {isFull ? '정원 초과' : '참여 신청하기'}
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center justify-center gap-1.5 text-[10px] font-black text-emerald-400 bg-emerald-900/20 px-3 py-2 rounded-lg border border-emerald-500/30 uppercase tracking-tighter">
+                        <Check size={13} strokeWidth={3} /> 참여 중
                       </div>
-                    )}
-                  </div>
+                      {confirmDeleteReg === m.id ? (
+                        <button onClick={() => handleCancel(m)} className="text-[10px] font-black text-white bg-rose-600 px-3 py-2 rounded-lg transition-all border border-rose-500 uppercase tracking-tighter">정말 취소?</button>
+                      ) : (
+                        <button onClick={() => setConfirmDeleteReg(m.id)} className="text-[10px] font-black text-slate-400 hover:text-white hover:bg-rose-900/30 px-3 py-2 rounded-lg transition-all border border-slate-700 hover:border-rose-500/50 uppercase tracking-tighter">참여 취소</button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                
-                {(adminRole || isRegistered) && attendees.length > 0 && (
-                  <div className="px-6 py-4 bg-slate-900/50 border-t border-slate-800/50">
-                    <h5 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3">참여자 명단</h5>
-                    <div className="flex flex-wrap gap-2">
-                        {attendees.map((reg, idx) => (
-                           <span key={reg.id} className="text-[10px] font-mono font-bold bg-[#1e293b] border border-slate-800 text-slate-400 px-2 py-0.5 rounded shadow-sm hover:text-white hover:border-slate-600 transition-colors">
-                             {reg.userName}
-                           </span>
-                        ))}
+
+                {attendees.length > 0 && (
+                  <div className="px-4 py-2.5 bg-slate-900/50 border-t border-slate-800/50">
+                    <div className="flex flex-wrap gap-1">
+                      {attendees.map((reg) => (
+                        <span key={reg.id} className="text-[10px] font-bold bg-[#1e293b] border border-slate-800 text-slate-400 px-2 py-0.5 rounded hover:text-white hover:border-slate-600 transition-colors">
+                          {reg.userName}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}

@@ -199,18 +199,18 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
           </div>
 
           {/* Member List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 font-sans bg-[#0f172a]/30">
+          <div className="flex-1 overflow-y-auto p-3 space-y-1.5 font-sans bg-[#0f172a]/30">
             {loading ? (
               <div className="text-center py-20 text-slate-600 animate-pulse font-mono uppercase tracking-widest text-xs">데이터 동기화 중...</div>
             ) : filteredMembers.length === 0 ? (
               <div className="text-center py-20 text-slate-600 font-mono uppercase tracking-widest text-xs">검색 결과가 없습니다.</div>
             ) : (
               filteredMembers.map(member => (
-                <div key={member.uid} className="bg-[#1e293b] p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition-all group flex items-center justify-between gap-3">
+                <div key={member.uid} className="bg-[#1e293b] p-2.5 rounded-lg border border-slate-800 hover:border-slate-700 transition-all group flex items-center justify-between gap-2">
                   <div className="flex items-center gap-3 overflow-hidden flex-1">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-bold text-white truncate">{member.name}</span>
+                        <span className="text-[12px] font-bold text-white truncate">{member.name}</span>
                         {member.role && (
                           <span className={`${member.role === 'manager' ? 'text-amber-500' : 'text-emerald-400'} text-[8px] font-black uppercase tracking-tighter shrink-0`}>
                              [{member.role === 'manager' ? '관리자' : '총무'}]
@@ -236,7 +236,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                         </div>
                       ) : (
                         <div className="flex items-center gap-1 mt-0.5">
-                          <p className="text-[10px] text-slate-500 font-medium truncate">{member.affiliation || '소속 정보 없음'}</p>
+                          <p className="text-[9px] text-slate-500 font-medium truncate leading-tight">{member.affiliation || '소속 정보 없음'}</p>
                           {adminRole === 'manager' && (
                             <button onClick={() => startEditAffiliation(member)} className="text-slate-600 hover:text-indigo-400 transition-colors shrink-0">
                               <Pencil size={10} />
@@ -244,7 +244,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                           )}
                         </div>
                       )}
-                      <div className="text-[10px] text-indigo-400/70 font-mono font-bold mt-0.5">{member.totalPoints.toLocaleString()} <span className="opacity-50 text-[8px]">PT</span></div>
+                      <div className="text-[9px] text-indigo-400/70 font-mono font-bold">{member.totalPoints.toLocaleString()} <span className="opacity-50 text-[7px]">PT</span></div>
                     </div>
                   </div>
 
@@ -275,7 +275,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                       <button
                         onClick={() => handleToggleTreasurer(member)}
                         disabled={!!processing}
-                        className={`p-2 h-9 rounded-lg transition-all relative group/btn ${member.role === 'treasurer' ? 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 border border-emerald-500/20' : member.role === 'manager' ? 'bg-amber-600/20 text-amber-500 border-amber-500/20 cursor-default' : 'text-slate-500 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700'} disabled:opacity-30`}
+                        className={`p-2 h-7 rounded-lg transition-all relative group/btn ${member.role === 'treasurer' ? 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 border border-emerald-500/20' : member.role === 'manager' ? 'bg-amber-600/20 text-amber-500 border-amber-500/20 cursor-default' : 'text-slate-500 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700'} disabled:opacity-30`}
                       >
                         {member.role === 'manager' ? <Shield size={18} className="text-amber-500" fill="currentColor" /> : member.role === 'treasurer' ? <UserMinus size={18} /> : <UserPlus size={18} />}
                         <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-slate-900 text-[10px] text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 transition-all scale-75 group-hover/btn:scale-100 whitespace-nowrap pointer-events-none z-10 shadow-2xl">총무권한</span>
@@ -287,7 +287,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                       <button
                         onClick={() => handleDeleteMember(member)}
                         disabled={!!processing}
-                        className="p-2 h-9 rounded-lg bg-red-900/20 text-red-500 hover:bg-red-600/30 hover:text-red-400 border border-red-900/30 transition-all relative group/btn disabled:opacity-30"
+                        className="p-2 h-7 rounded-lg bg-red-900/20 text-red-500 hover:bg-red-600/30 hover:text-red-400 border border-red-900/30 transition-all relative group/btn disabled:opacity-30"
                       >
                         <Trash2 size={16} />
                         <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-slate-900 text-[10px] text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 transition-all scale-75 group-hover/btn:scale-100 whitespace-nowrap pointer-events-none z-10 shadow-2xl">회원삭제</span>
