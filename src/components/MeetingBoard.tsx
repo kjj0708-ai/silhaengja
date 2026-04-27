@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, setDoc, serverTimestamp, runTransaction, updateDoc, deleteDoc, writeBatch, getDocs, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile } from '../hooks/useUserRole';
 import { format } from 'date-fns';
-import { Pencil, Trash2, X, Check, CalendarCheck, Calendar } from 'lucide-react';
+import { Pencil, Trash2, X, Check, CalendarCheck, Calendar, Bell, BellOff } from 'lucide-react';
+import { useMeetingNotifications } from '../hooks/useNotifications';
 
 interface Meeting {
   id: string;
@@ -27,6 +28,8 @@ export default function MeetingBoard({
   const [myRegistrations, setMyRegistrations] = useState<Set<string>>(new Set());
   const [allRegistrations, setAllRegistrations] = useState<any[]>([]); // For admin view
   const [loading, setLoading] = useState(true);
+  const knownMeetingIds = useRef<Set<string> | null>(null); // null = initial load not done
+  const { notifEnabled, permission, toggle, notify } = useMeetingNotifications();
 
   // New Meeting Form
   const [newTitle, setNewTitle] = useState('');
@@ -68,6 +71,21 @@ export default function MeetingBoard({
         };
         return getMillis(b.createdAt) - getMillis(a.createdAt);
       });
+
+      // 신규 모임 감지 후 알림 발송
+      const currentIds = new Set(mets.map(m => m.id));
+      if (knownMeetingIds.current === null) {
+        // 최초 로드 - 기존 목록만 저장, 알림 없음
+        knownMeetingIds.current = currentIds;
+      } else {
+        mets.forEach(m => {
+          if (!knownMeetingIds.current!.has(m.id)) {
+            notify('🍽️ 새 런치클럽 모임 등록!', `${m.title} — ${m.date}`);
+          }
+        });
+        knownMeetingIds.current = currentIds;
+      }
+
       setMeetings(mets);
     }, (err: any) => {
       if (err.code === 'permission-denied') return;
@@ -298,7 +316,23 @@ export default function MeetingBoard({
            <h3 className="text-[12px] font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-indigo-500"></span> 활성 오프라인 모임 명부
            </h3>
-           <span className="text-[10px] font-mono text-slate-500">{meetings.length}개의 노드 발견됨</span>
+           <div className="flex items-center gap-3">
+             <span className="text-[10px] font-mono text-slate-500">{meetings.length}개의 노드 발견됨</span>
+             <button
+               onClick={toggle}
+               title={notifEnabled ? '알림 끄기' : (permission === 'denied' ? '브라우저 알림이 차단됨' : '알림 켜기')}
+               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                 notifEnabled
+                   ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-600/30'
+                   : permission === 'denied'
+                   ? 'bg-slate-800/50 text-slate-600 border-slate-700/50 cursor-not-allowed'
+                   : 'bg-slate-800 text-slate-500 border-slate-700 hover:text-white hover:border-slate-500'
+               }`}
+             >
+               {notifEnabled ? <Bell size={12} /> : <BellOff size={12} />}
+               {notifEnabled ? '알림 ON' : '알림 OFF'}
+             </button>
+           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
