@@ -1,13 +1,13 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, browserLocalPersistence, signOut } from 'firebase/auth';
+import { initializeAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// initializeAuth로 처음부터 localStorage 고정 → iOS 세션 유지 안정화
+// IndexedDB → localStorage → 메모리 순으로 폴백 (iOS 모든 컨텍스트 대응)
 export const auth = initializeAuth(app, {
-  persistence: browserLocalPersistence,
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence],
 });
 // Use the exact database ID from config
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
