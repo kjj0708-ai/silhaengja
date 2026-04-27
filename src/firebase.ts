@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, browserLocalPersistence, setPersistence, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -31,12 +31,28 @@ export const testFirestoreConnection = async () => {
 
 export const googleProvider = new GoogleAuthProvider();
 
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 export const loginWithGoogle = async () => {
   try {
+    if (isIOS()) {
+      await setPersistence(auth, browserLocalPersistence);
+      await signInWithRedirect(auth, googleProvider);
+      return null; // 페이지가 리다이렉트됨, onAuthStateChanged가 처리
+    }
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
     console.error("Google login failed", error);
+    throw error;
+  }
+};
+
+export const handleRedirectResult = async () => {
+  try {
+    await getRedirectResult(auth);
+  } catch (error: any) {
+    console.error("Redirect result error:", error);
     throw error;
   }
 };

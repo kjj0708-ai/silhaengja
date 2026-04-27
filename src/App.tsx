@@ -12,7 +12,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, loginWithGoogle, logout, testFirestoreConnection } from './firebase';
+import { auth, loginWithGoogle, logout, testFirestoreConnection, handleRedirectResult } from './firebase';
 import { useUserRole } from './hooks/useUserRole';
 import Onboarding from './components/Onboarding';
 import MeetingBoard from './components/MeetingBoard';
@@ -63,6 +63,15 @@ export default function App() {
     // Initial connection test
     testFirestoreConnection().catch(e => {
       setRenderError(`데이터베이스 연결 실패: ${e.message}`);
+    });
+
+    // iOS redirect 결과 처리 (에러만 캐치, 성공은 onAuthStateChanged가 처리)
+    handleRedirectResult().catch((e: any) => {
+      if (e.code === 'auth/unauthorized-domain') {
+        setRenderError(`현재 도메인(${window.location.hostname})이 Firebase 승인된 도메인에 등록되지 않았습니다.`);
+      } else if (e.code !== 'auth/popup-closed-by-user') {
+        console.error("Redirect auth error:", e);
+      }
     });
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
