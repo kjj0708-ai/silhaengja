@@ -1,13 +1,14 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence, signOut } from 'firebase/auth';
+import { initializeAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence, browserPopupRedirectResolver, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// IndexedDB → localStorage → 메모리 순으로 폴백 (iOS 모든 컨텍스트 대응)
+// popupRedirectResolver 필수 — 없으면 signInWithRedirect가 auth/argument-error 발생
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
 });
 // Use the exact database ID from config
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
