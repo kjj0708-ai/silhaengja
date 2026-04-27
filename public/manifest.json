@@ -3,20 +3,20 @@
   "name": "실행자들 ARCHITECT",
   "icons": [
     {
-      "src": "/silhaengja-old2/logo.png",
+      "src": "/logo.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/silhaengja-old2/logo.png",
+      "src": "/logo.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/silhaengja-old2/",
-  "scope": "/silhaengja-old2/",
+  "start_url": "/",
+  "scope": "/",
   "background_color": "#1e293b",
   "display": "standalone",
   "theme_color": "#4f46e5",

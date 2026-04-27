@@ -45,7 +45,7 @@ export function useMeetingNotifications() {
       setNotifEnabled(true);
       new Notification('실행자들 알림 설정 완료', {
         body: '새로운 런치클럽 모임이 등록되면 알려드릴게요!',
-        icon: '/silhaengja-old2/logo.png',
+        icon: '/logo.png',
       });
     }
   };
@@ -56,8 +56,8 @@ export function useMeetingNotifications() {
     if (Notification.permission !== 'granted') return;
     new Notification(title, {
       body,
-      icon: '/silhaengja-old2/logo.png',
-      badge: '/silhaengja-old2/logo.png',
+      icon: '/logo.png',
+      badge: '/logo.png',
       tag: 'meeting-new',
     });
   };
