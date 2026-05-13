@@ -139,6 +139,34 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
     setMemberPoints(prev => ({ ...prev, [uid]: num }));
   };
 
+  const handleResetAllPoints = async () => {
+    if (!window.confirm(`전체 ${members.length}명의 포인트를 모두 0으로 초기화하시겠습니까?\n회원 정보(이름, 소속 등)는 그대로 유지됩니다.`)) return;
+    if (!window.confirm('⚠️ 마지막 확인: 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
+    setProcessing('__reset_all__');
+    try {
+      // 500개 단위로 배치 처리
+      const chunkSize = 450;
+      for (let i = 0; i < members.length; i += chunkSize) {
+        const chunk = members.slice(i, i + chunkSize);
+        const batch = writeBatch(db);
+        chunk.forEach(member => {
+          batch.update(doc(db, 'users', member.uid), {
+            totalPoints: 0,
+            lastMissionId: '',
+            lastMeetingId: ''
+          });
+        });
+        await batch.commit();
+      }
+      alert('✅ 포인트 초기화 완료');
+    } catch (err: any) {
+      console.error(err);
+      alert('초기화 실패: ' + err.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   const filteredMembers = members.filter(m => 
     m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     m.affiliation?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -285,12 +313,20 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
           </div>
 
           {/* Status Bar */}
-          <div className="px-3 py-2 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
+          <div className="px-3 py-2 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-mono">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
               {adminRole === 'manager' ? '마스터 관리자' : '지정 총무'} · 검색결과 {filteredMembers.length}명
             </div>
-            <div className="text-[9px] text-slate-600 italic">관리자만 권한·포인트 제어 가능</div>
+            {adminRole === 'manager' && (
+              <button
+                onClick={handleResetAllPoints}
+                disabled={!!processing}
+                className="flex items-center gap-1 px-2.5 py-1 bg-rose-900/30 hover:bg-rose-800/50 border border-rose-700/40 text-rose-400 hover:text-rose-300 rounded text-[9px] font-bold uppercase tracking-wider transition-all disabled:opacity-40 shrink-0"
+              >
+                ⚠ 포인트 전체 초기화
+              </button>
+            )}
           </div>
         </motion.div>
       </div>
