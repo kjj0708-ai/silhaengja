@@ -3,7 +3,7 @@ import { collection, query, orderBy, onSnapshot, doc, setDoc, serverTimestamp, r
 import { db } from '../firebase';
 import { UserProfile } from '../hooks/useUserRole';
 import { format } from 'date-fns';
-import { Pencil, Trash2, X, Check, CalendarCheck, Calendar, Bell, BellOff } from 'lucide-react';
+import { Pencil, Trash2, X, Check, CalendarCheck, Calendar, Bell, BellOff, Lock, LockOpen } from 'lucide-react';
 import { useMeetingNotifications } from '../hooks/useNotifications';
 
 interface Meeting {
@@ -13,6 +13,7 @@ interface Meeting {
   maxAttendees: number;
   attendeesCount: number;
   createdAt: any;
+  closed?: boolean;
 }
 
 export default function MeetingBoard({
@@ -142,7 +143,17 @@ export default function MeetingBoard({
     }
   };
 
+  const handleToggleClosed = async (meeting: Meeting) => {
+    try {
+      await updateDoc(doc(db, 'meetings', meeting.id), { closed: !meeting.closed });
+    } catch (err) {
+      console.error(err);
+      safeAlert('마감 처리 실패');
+    }
+  };
+
   const handleRegister = async (meeting: Meeting) => {
+    if (meeting.closed) { safeAlert('관리자가 마감한 모임입니다.'); return; }
     try {
       await runTransaction(db, async (transaction) => {
         const meetingRef = doc(db, 'meetings', meeting.id);
@@ -341,10 +352,21 @@ export default function MeetingBoard({
           {meetings.map(m => {
             const isRegistered = myRegistrations.has(m.id);
             const isFull = m.attendeesCount >= m.maxAttendees;
+            const isClosed = !!m.closed || isFull;
             const attendees = allRegistrations.filter(r => r.meetingId === m.id);
 
             return (
               <div key={m.id} className={`group bg-[#1e293b] rounded-xl border ${isRegistered ? 'border-indigo-500/50 ring-1 ring-indigo-500/20' : 'border-slate-800'} shadow-xl flex flex-col relative overflow-hidden transition-all hover:border-slate-700`}>
+                {m.closed && !isFull && (
+                  <div className="absolute top-0 left-0 bg-rose-700 text-white text-[9px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter flex items-center gap-1">
+                    <Lock size={9} /> 마감됨
+                  </div>
+                )}
+                {isFull && (
+                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[9px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
+                    정원마감
+                  </div>
+                )}
                 {isRegistered && (
                    <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
                      참여 확정됨
@@ -373,6 +395,13 @@ export default function MeetingBoard({
                           {adminRole === 'manager' && (
                             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button onClick={() => handleStartEdit(m)} className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"><Pencil size={11} /></button>
+                              <button
+                                onClick={() => handleToggleClosed(m)}
+                                title={m.closed ? '마감 해제' : '마감하기'}
+                                className={`p-1 transition-colors ${m.closed ? 'text-rose-400 hover:text-slate-400' : 'text-slate-600 hover:text-rose-400'}`}
+                              >
+                                {m.closed ? <LockOpen size={11} /> : <Lock size={11} />}
+                              </button>
                               {confirmDeleteMtg === m.id ? (
                                 <button onClick={() => handleDeleteMeeting(m.id)} className="p-1 text-[10px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">진짜 삭제?</button>
                               ) : (
@@ -400,12 +429,12 @@ export default function MeetingBoard({
                   {!isRegistered ? (
                     <button
                       onClick={() => handleRegister(m)}
-                      disabled={isFull}
+                      disabled={isClosed}
                       className={`w-full text-[11px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
-                        isFull ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                        isClosed ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'
                       }`}
                     >
-                      {isFull ? '정원 초과' : '참여 신청하기'}
+                      {isFull ? '정원 초과' : m.closed ? '신청 마감' : '참여 신청하기'}
                     </button>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
