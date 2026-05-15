@@ -270,7 +270,6 @@ export default function App() {
            </div>
            <div>
              <h1 className="text-[20px] font-black text-white leading-tight tracking-tighter">실행자들</h1>
-             <p className="text-[17px] text-slate-300 font-mono uppercase tracking-widest italic">데이터 센터</p>
            </div>
         </div>
         
