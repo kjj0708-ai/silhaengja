@@ -147,6 +147,10 @@ service cloud.firestore {
       allow create: if isSignedIn() && isValidId(userId) && userId == request.auth.uid && isValidUser(incoming()) && incoming().createdAt == request.time && incoming().totalPoints == 0;
       allow update: if isSignedIn() && isValidId(userId) && (
         isAdmin() ||
+        // FCM 토큰만 업데이트 (백그라운드 푸시 등록용)
+        (userId == request.auth.uid
+          && incoming().diff(existing()).affectedKeys().hasOnly(['fcmToken'])
+          && (incoming().fcmToken is string || incoming().fcmToken == null)) ||
         (userId == request.auth.uid && isValidUser(incoming()) && incoming().uid == existing().uid && incoming().createdAt == existing().createdAt && incoming().tier == existing().tier && (
           incoming().totalPoints == existing().totalPoints || isValidPointIncrement()
         ))

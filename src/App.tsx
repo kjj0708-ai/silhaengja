@@ -12,7 +12,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, loginWithGoogle, loginWithPin, logout, testFirestoreConnection, handleRedirectResult } from './firebase';
+import { auth, loginWithGoogle, loginWithPin, logout, testFirestoreConnection, handleRedirectResult, registerFCMToken, onForegroundMessage } from './firebase';
 import { useUserRole } from './hooks/useUserRole';
 import Onboarding from './components/Onboarding';
 import MeetingBoard from './components/MeetingBoard';
@@ -188,6 +188,24 @@ export default function App() {
 
   const { profile, adminRole, createProfile, updateProfileInfo, loadingProfile } = useUserRole(user);
   const { enabled: adminNotifEnabled, permission: adminNotifPerm, toggle: toggleAdminNotif } = useAdminNotifications(adminRole);
+
+  // FCM 토큰 등록 (로그인된 유저 + 프로필 준비된 후)
+  useEffect(() => {
+    if (!user) return;
+    // 짧은 딜레이로 서비스워커가 준비될 시간 확보
+    const t = setTimeout(() => registerFCMToken(user.uid), 2000);
+    return () => clearTimeout(t);
+  }, [user?.uid]);
+
+  // 포그라운드 메시지 수신 (앱 열려있을 때 브라우저 알림)
+  useEffect(() => {
+    const unsub = onForegroundMessage((title, body) => {
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '/logo.png', badge: '/logo.png' });
+      }
+    });
+    return () => { if (typeof unsub === 'function') unsub(); };
+  }, []);
 
   useEffect(() => {
     // Initial connection test

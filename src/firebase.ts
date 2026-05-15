@@ -1,7 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence, browserPopupRedirectResolver, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore, doc, getDocFromServer, updateDoc } from 'firebase/firestore';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import firebaseConfig from '../firebase-applet-config.json';
+
+// ⚠️ Firebase Console → 프로젝트 설정 → 클라우드 메시징 → 웹 푸시 인증서 → 키 쌍 복사
+const VAPID_KEY = 'REPLACE_WITH_YOUR_VAPID_KEY';
 
 const app = initializeApp(firebaseConfig);
 
@@ -86,5 +90,54 @@ export const logout = async () => {
     await signOut(auth);
   } catch (error) {
     console.error("Logout failed", error);
+  }
+};
+
+// ── FCM: 권한 요청 + 토큰 Firestore 저장 ──────────────────────────────
+export const registerFCMToken = async (userId: string): Promise<void> => {
+  try {
+    if (!('Notification' in window)) return;
+    if (!('serviceWorker' in navigator)) return;
+
+    // 이미 거부된 경우 조용히 종료
+    if (Notification.permission === 'denied') return;
+
+    // 권한 요청 (granted이면 바로 진행)
+    if (Notification.permission !== 'granted') {
+      const result = await Notification.requestPermission();
+      if (result !== 'granted') return;
+    }
+
+    // Service Worker 등록 (아직 안 됐을 경우 대비)
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+
+    const messaging = getMessaging(app);
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registration,
+    });
+
+    if (!token) return;
+
+    // Firestore user 문서에 토큰 저장
+    await updateDoc(doc(db, 'users', userId), { fcmToken: token });
+    console.log('FCM token registered:', token.slice(0, 20) + '...');
+  } catch (err) {
+    // 토큰 저장 실패는 앱 동작에 영향 없음
+    console.warn('FCM token registration failed (non-fatal):', err);
+  }
+};
+
+// ── FCM: 포그라운드 메시지 수신 (앱이 열려있을 때) ──────────────────
+export const onForegroundMessage = (callback: (title: string, body: string) => void) => {
+  try {
+    const messaging = getMessaging(app);
+    return onMessage(messaging, (payload) => {
+      const title = payload.notification?.title ?? '실행자들';
+      const body  = payload.notification?.body  ?? '';
+      callback(title, body);
+    });
+  } catch {
+    return () => {};
   }
 };

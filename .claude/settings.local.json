@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(gh run *)",
+      "Bash(gh secret *)",
+      "Bash(gh api *)",
+      "Bash(gh workflow *)",
+      "mcp__github__get_file_contents",
+      "Bash(xargs cat *)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(curl -s \"https://kjj0708-ai.github.io/silhaengja-old2/index.html\")",
+      "mcp__playwright__browser_evaluate",
+      "Bash(xargs grep *)",
+      "Bash(firebase login *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://kjj0708-ai.github.io/silhaengja-old2/logo.png\")",
+      "Bash(identify /c/Users/김종진/Desktop/vibecoding/silhaengja/public/logo.png)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s https://kjj0708-ai.github.io/silhaengja-old2/index.html)",
+      "Bash(curl -s \"https://kjj0708-ai.github.io/silhaengja-old2/assets/index-$\\(curl -s https://kjj0708-ai.github.io/silhaengja-old2/index.html)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(git reset *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(xargs ls *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(node_modules/.bin/vite build *)"
+    ]
+  }
+}
