@@ -12,7 +12,7 @@ import {
   LogIn
 } from 'lucide-react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, loginWithGoogle, loginWithPin, logout, testFirestoreConnection, handleRedirectResult, registerFCMToken, onForegroundMessage } from './firebase';
+import { auth, loginWithGoogle, loginWithPin, logout, testFirestoreConnection, handleRedirectResult } from './firebase';
 import { useUserRole } from './hooks/useUserRole';
 import Onboarding from './components/Onboarding';
 import MeetingBoard from './components/MeetingBoard';
@@ -24,7 +24,6 @@ import RankingBoard from './components/RankingBoard';
 import AdminSettings from './components/AdminSettings';
 import ProfileSettings from './components/ProfileSettings';
 import { Settings } from 'lucide-react';
-import { useAdminNotifications } from './hooks/useAdminNotifications';
 
 function LoginScreen({ onError }: { onError: (msg: string | null) => void }) {
   const [mode, setMode] = useState<'select' | 'pin'>('select');
@@ -187,27 +186,6 @@ export default function App() {
   const [renderError, setRenderError] = useState<string | null>(null);
 
   const { profile, adminRole, createProfile, updateProfileInfo, loadingProfile } = useUserRole(user);
-  const { enabled: adminNotifEnabled, toggle: toggleAdminNotif } = useAdminNotifications(adminRole);
-
-  // FCM 토큰 등록 (로그인된 유저, 사용자가 명시적으로 끈 경우 제외)
-  useEffect(() => {
-    if (!user) return;
-    const disabled = localStorage.getItem('fcm_push_enabled') === 'false';
-    if (disabled) return;
-    // 서비스워커 준비 시간 확보 후 등록
-    const t = setTimeout(() => registerFCMToken(user.uid), 2000);
-    return () => clearTimeout(t);
-  }, [user?.uid]);
-
-  // 포그라운드 메시지 수신 (앱 열려있을 때 브라우저 알림)
-  useEffect(() => {
-    const unsub = onForegroundMessage((title, body) => {
-      if (Notification.permission === 'granted') {
-        new Notification(title, { body, icon: '/logo.png', badge: '/logo.png' });
-      }
-    });
-    return () => { if (typeof unsub === 'function') unsub(); };
-  }, []);
 
   useEffect(() => {
     // Initial connection test
@@ -401,10 +379,6 @@ export default function App() {
           onClose={() => setIsProfileOpen(false)}
           profile={profile!}
           onUpdate={updateProfileInfo}
-          userId={user.uid}
-          adminRole={adminRole}
-          adminNotifEnabled={adminNotifEnabled}
-          onToggleAdminNotif={toggleAdminNotif}
         />
 
         {/* Footer Bar */}
