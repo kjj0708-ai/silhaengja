@@ -189,10 +189,12 @@ export default function App() {
   const { profile, adminRole, createProfile, updateProfileInfo, loadingProfile } = useUserRole(user);
   const { enabled: adminNotifEnabled, toggle: toggleAdminNotif } = useAdminNotifications(adminRole);
 
-  // FCM 토큰 등록 (로그인된 유저 + 프로필 준비된 후)
+  // FCM 토큰 등록 (로그인된 유저, 사용자가 명시적으로 끈 경우 제외)
   useEffect(() => {
     if (!user) return;
-    // 짧은 딜레이로 서비스워커가 준비될 시간 확보
+    const disabled = localStorage.getItem('fcm_push_enabled') === 'false';
+    if (disabled) return;
+    // 서비스워커 준비 시간 확보 후 등록
     const t = setTimeout(() => registerFCMToken(user.uid), 2000);
     return () => clearTimeout(t);
   }, [user?.uid]);

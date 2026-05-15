@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Save, User as UserIcon, Building2, LogOut, Bell, BellOff, BellRing } from 'lucide-react';
+import { X, Save, User as UserIcon, Building2, LogOut, Bell, BellOff, BellRing, FlaskConical } from 'lucide-react';
 import { UserProfile } from '../hooks/useUserRole';
 import { logout, registerFCMToken, unregisterFCMToken } from '../firebase';
 
@@ -26,6 +26,7 @@ export default function ProfileSettings({
   const [pushPerm, setPushPerm] = useState<NotificationPermission>('default');
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  const [testResult, setTestResult] = useState<string>('');
 
   // 알림 권한 + 활성 상태 초기화
   useEffect(() => {
@@ -33,9 +34,9 @@ export default function ProfileSettings({
     if (!('Notification' in window)) return;
     const perm = Notification.permission;
     setPushPerm(perm);
-    // localStorage에 저장된 사용자 선택 기반
     const saved = localStorage.getItem('fcm_push_enabled');
     setPushEnabled(perm === 'granted' && saved !== 'false');
+    setTestResult('');
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -62,6 +63,22 @@ export default function ProfileSettings({
       } catch (error) {
         console.error("Logout error:", error);
       }
+    }
+  };
+
+  const handleTestNotification = () => {
+    if (Notification.permission !== 'granted') {
+      setTestResult('❌ 브라우저 알림 권한이 없습니다. 먼저 알림을 켜주세요.');
+      return;
+    }
+    try {
+      new Notification('🔔 실행자들 테스트 알림', {
+        body: '알림이 정상 작동합니다!',
+        icon: `${window.location.origin}/logo.png`,
+      });
+      setTestResult('✅ 테스트 알림 전송됨 — 브라우저 알림창을 확인하세요.');
+    } catch (e) {
+      setTestResult('❌ 알림 전송 실패: ' + String(e));
     }
   };
 
@@ -163,10 +180,24 @@ export default function ProfileSettings({
 
           {/* 알림 설정 섹션 */}
           <div className="border-t border-slate-800/50 pt-4 space-y-3">
-            <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <Bell size={11} className="text-indigo-400" />
-              알림 설정
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <Bell size={11} className="text-indigo-400" />
+                알림 설정
+              </p>
+              <button
+                onClick={handleTestNotification}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[12px] text-slate-300 hover:text-white transition-all"
+              >
+                <FlaskConical size={11} />
+                테스트
+              </button>
+            </div>
+            {testResult && (
+              <p className={`text-[12px] px-3 py-2 rounded-lg border ${testResult.startsWith('✅') ? 'bg-emerald-900/20 border-emerald-900/30 text-emerald-400' : 'bg-red-900/20 border-red-900/30 text-red-400'}`}>
+                {testResult}
+              </p>
+            )}
 
             {/* 백그라운드 푸시 알림 */}
             <div className={`flex items-center justify-between p-3 rounded-xl border ${
