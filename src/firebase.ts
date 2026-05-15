@@ -127,6 +127,15 @@ export const registerFCMToken = async (userId: string): Promise<void> => {
   }
 };
 
+// ── FCM: 토큰 해제 (알림 OFF 시) ──────────────────────────────────
+export const unregisterFCMToken = async (userId: string): Promise<void> => {
+  try {
+    await updateDoc(doc(db, 'users', userId), { fcmToken: null });
+  } catch (err) {
+    console.warn('FCM token removal failed:', err);
+  }
+};
+
 // ── FCM: 포그라운드 메시지 수신 (앱이 열려있을 때) ──────────────────
 export const onForegroundMessage = (callback: (title: string, body: string) => void) => {
   try {

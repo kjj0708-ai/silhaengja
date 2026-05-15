@@ -23,7 +23,7 @@ import AccountingBoard from './components/AccountingBoard';
 import RankingBoard from './components/RankingBoard';
 import AdminSettings from './components/AdminSettings';
 import ProfileSettings from './components/ProfileSettings';
-import { Settings, Bell, BellOff } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useAdminNotifications } from './hooks/useAdminNotifications';
 
 function LoginScreen({ onError }: { onError: (msg: string | null) => void }) {
@@ -187,7 +187,7 @@ export default function App() {
   const [renderError, setRenderError] = useState<string | null>(null);
 
   const { profile, adminRole, createProfile, updateProfileInfo, loadingProfile } = useUserRole(user);
-  const { enabled: adminNotifEnabled, permission: adminNotifPerm, toggle: toggleAdminNotif } = useAdminNotifications(adminRole);
+  const { enabled: adminNotifEnabled, toggle: toggleAdminNotif } = useAdminNotifications(adminRole);
 
   // FCM 토큰 등록 (로그인된 유저 + 프로필 준비된 후)
   useEffect(() => {
@@ -368,29 +368,6 @@ export default function App() {
                 </button>
               )}
 
-              {/* 관리자 알림 토글 */}
-              {(adminRole === 'manager' || adminRole === 'treasurer') && (
-                <button
-                  onClick={toggleAdminNotif}
-                  title={
-                    adminNotifEnabled
-                      ? '관리자 알림 끄기'
-                      : adminNotifPerm === 'denied'
-                      ? '브라우저 알림이 차단됨'
-                      : '관리자 알림 켜기'
-                  }
-                  className={`p-1.5 rounded-lg transition-all border text-[11px] flex items-center gap-1 ${
-                    adminNotifEnabled
-                      ? 'bg-amber-600/20 text-amber-400 border-amber-500/30 hover:bg-amber-600/30'
-                      : adminNotifPerm === 'denied'
-                      ? 'bg-slate-800/50 text-slate-300 border-slate-700/50 cursor-not-allowed'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-amber-400 hover:border-amber-500/30'
-                  }`}
-                >
-                  {adminNotifEnabled ? <Bell size={13} /> : <BellOff size={13} />}
-                </button>
-              )}
-
               {(adminRole === 'manager' || adminRole === 'treasurer') && (
                 <div className="px-2 py-0.5 rounded bg-amber-900/20 text-[11px] text-amber-500 border border-amber-900/30 font-bold whitespace-nowrap">
                    {adminRole === 'manager' ? '관리자' : '총무'}
@@ -422,6 +399,10 @@ export default function App() {
           onClose={() => setIsProfileOpen(false)}
           profile={profile!}
           onUpdate={updateProfileInfo}
+          userId={user.uid}
+          adminRole={adminRole}
+          adminNotifEnabled={adminNotifEnabled}
+          onToggleAdminNotif={toggleAdminNotif}
         />
 
         {/* Footer Bar */}
