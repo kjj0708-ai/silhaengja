@@ -31,9 +31,11 @@ export function useUserRole(user: FirebaseUser | null) {
       if (!isMounted) return;
       if (snap.exists()) {
         const data = snap.data() as UserProfile;
+        // Always ensure uid is set (some legacy profiles may not have it stored)
+        const profileWithUid = { ...data, uid: data.uid || user.uid };
         setProfile(prev => {
-          if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
-          return data;
+          if (JSON.stringify(prev) === JSON.stringify(profileWithUid)) return prev;
+          return profileWithUid;
         });
         const profileRole = data.role || null;
         setAdminRole(prev => {

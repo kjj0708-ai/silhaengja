@@ -189,12 +189,14 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
   const handleAddComment = async (postId: string) => {
     const text = (commentInputs[postId] || '').trim();
     if (!text) return;
+    const uid = profile.uid || auth.currentUser?.uid;
+    if (!uid) return safeAlert('로그인 정보가 없습니다. 다시 로그인해 주세요.');
     try {
       await addDoc(collection(db, 'post_comments'), {
         postId,
         parentId: null,
         content: text,
-        authorUid: profile.uid,
+        authorUid: uid,
         authorName: profile.name,
         createdAt: serverTimestamp()
       });
@@ -207,12 +209,14 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
   const handleAddReply = async (postId: string, parentId: string) => {
     const text = (replyInputs[parentId] || '').trim();
     if (!text) return;
+    const uid = profile.uid || auth.currentUser?.uid;
+    if (!uid) return safeAlert('로그인 정보가 없습니다. 다시 로그인해 주세요.');
     try {
       await addDoc(collection(db, 'post_comments'), {
         postId,
         parentId,
         content: text,
-        authorUid: profile.uid,
+        authorUid: uid,
         authorName: profile.name,
         createdAt: serverTimestamp()
       });
