@@ -645,16 +645,16 @@ export default function MissionBoard({
                         +{m.points}
                       </div>
                     </div>
-                    <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed mb-4">{m.description}</p>
-                    <div className="flex items-center gap-4 text-[17px] text-slate-300 font-bold uppercase tracking-widest font-mono">
+                    <p className="text-[14px] text-slate-200 whitespace-pre-wrap leading-relaxed mb-2">{m.description}</p>
+                    <div className="flex items-center gap-3 text-[12px] text-slate-300 font-bold font-mono flex-wrap">
                       <div className="flex items-center gap-1">
-                        <Calendar size={12} className="opacity-50" />
-                        {m.createdAt?.toDate ? format(m.createdAt.toDate(), 'yyyy.MM.dd') : '전송 중...'}
+                        <Calendar size={10} className="opacity-50" />
+                        {m.createdAt?.toDate ? format(m.createdAt.toDate(), 'yy.MM.dd') : '전송 중...'}
                       </div>
                       {mDeadline && (
                         <div className={`flex items-center gap-1 ${showOngoing ? 'text-amber-500' : 'text-rose-500'}`}>
-                          <Lock size={12} className="opacity-50" />
-                          기한: {format(mDeadline, 'yyyy.MM.dd')}
+                          <Lock size={10} className="opacity-50" />
+                          기한 {format(mDeadline, 'yy.MM.dd')}
                         </div>
                       )}
                     </div>
@@ -663,17 +663,13 @@ export default function MissionBoard({
               </div>
 
               {/* Feed of verifications */}
-              <div className="flex-1 p-5 flex flex-col gap-4 max-h-[300px] overflow-y-auto bg-[#0f172a]">
-                <div className="flex items-center justify-between sticky top-0 bg-[#0f172a]/90 backdrop-blur-md py-1 z-10">
-                  <h5 className="text-[17px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    ({mExecutions.length})
-                  </h5>
-                </div>
-                
-                {mExecutions.length === 0 && (
-                  <div className="py-12 text-center flex flex-col items-center gap-2">
-                    <p className="text-[17px] text-slate-300 font-bold uppercase tracking-widest italic">인증 대기 중...</p>
+              <div className={`flex-1 px-4 flex flex-col gap-3 max-h-[300px] overflow-y-auto bg-[#0f172a] ${mExecutions.length > 0 ? 'py-3' : 'py-0'}`}>
+                {mExecutions.length > 0 && (
+                  <div className="flex items-center justify-between sticky top-0 bg-[#0f172a]/90 backdrop-blur-md py-1 z-10">
+                    <h5 className="text-[13px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      ({mExecutions.length})
+                    </h5>
                   </div>
                 )}
                 

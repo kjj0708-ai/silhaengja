@@ -308,7 +308,7 @@ export default function MeetingBoard({
           </h3>
           <form onSubmit={handleCreateMeeting} className="flex flex-col gap-2.5">
             <div>
-              <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">식별자 (제목)</label>
+              <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">제목</label>
               <input type="text" required value={newTitle} onChange={v => setNewTitle(v.target.value)}
                 className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-medium" placeholder="예: 첫 번째 세션" />
             </div>

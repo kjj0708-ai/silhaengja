@@ -318,40 +318,38 @@ export default function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header Bar */}
-        <header className="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-[#1e293b] shrink-0">
-           <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 md:hidden">
-                 <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-slate-700 bg-[#1e293b] p-0.5">
-                    <Logo size={16} />
+        <header className="h-11 border-b border-slate-800 flex items-center justify-between px-3 md:px-6 bg-[#1e293b] shrink-0">
+           <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 md:hidden shrink-0">
+                 <div className="w-6 h-6 rounded shrink-0 overflow-hidden border border-slate-700 bg-[#1e293b] p-0.5">
+                    <Logo size={12} />
                  </div>
-                 <h1 className="text-[19px] font-black text-white tracking-tighter">실행자들</h1>
+                 <h1 className="text-[13px] font-black text-white tracking-tighter">실행자들</h1>
+                 <span className="text-slate-700 text-[13px]">·</span>
               </div>
-              <div className="h-4 w-[1px] bg-slate-700 hidden md:hidden"></div>
-              <h2 className="text-[15px] font-bold text-slate-200 uppercase tracking-wider">
+              <h2 className="text-[13px] font-bold text-slate-300 uppercase tracking-wider truncate">
                  {navigation.find(n => n.id === activeTab)?.name}
               </h2>
            </div>
-           <div className="flex items-center gap-3">
-              <button 
+           <div className="flex items-center gap-1.5 shrink-0">
+              <button
                 onClick={() => setIsProfileOpen(true)}
-                className="p-2 text-slate-300 hover:text-indigo-400 transition-all hover:bg-slate-800 rounded-lg relative group"
+                className="p-1.5 text-slate-300 hover:text-indigo-400 transition-all hover:bg-slate-800 rounded-lg"
               >
-                <Settings size={18} />
-                <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[13px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">프로필 수정</span>
+                <Settings size={15} />
               </button>
-              
+
               {(adminRole === 'manager' || adminRole === 'treasurer') && (
-                <button 
+                <button
                   onClick={() => setIsSettingsOpen(true)}
-                  className="p-2 text-slate-300 hover:text-amber-500 transition-all hover:bg-slate-800 rounded-lg relative group"
+                  className="p-1.5 text-slate-300 hover:text-amber-500 transition-all hover:bg-slate-800 rounded-lg"
                 >
-                  <Users size={20} />
-                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[13px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">회원관리</span>
+                  <Users size={16} />
                 </button>
               )}
               {(adminRole === 'manager' || adminRole === 'treasurer') && (
-                <div className="px-3 py-1.5 rounded bg-amber-900/20 text-[13px] text-amber-500 border border-amber-900/30 font-bold">
-                   권한: {adminRole === 'manager' ? '관리자' : '총무'}
+                <div className="px-2 py-0.5 rounded bg-amber-900/20 text-[11px] text-amber-500 border border-amber-900/30 font-bold whitespace-nowrap">
+                   {adminRole === 'manager' ? '관리자' : '총무'}
                 </div>
               )}
            </div>
