@@ -258,7 +258,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full animate-in fade-in duration-500 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-4 w-full animate-in fade-in duration-500">
       {/* Category Tabs */}
       <div className="flex bg-[#1e293b] p-1 rounded-xl border border-slate-800 shadow-xl self-start">
         <button
@@ -277,19 +277,15 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
 
       {/* Post Creation */}
       {(activeCategory === 'free' || (activeCategory === 'notice' && adminRole === 'manager')) && (
-        <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-2xl">
-          <h3 className="text-[15px] font-bold mb-4 flex items-center gap-2 text-slate-200 uppercase tracking-widest">
-            <Plus size={14} className={activeCategory === 'notice' ? 'text-indigo-500' : 'text-emerald-500'} />
-            {activeCategory === 'notice' ? '신규 공지 등록' : '새로운 게시글 작성'}
-          </h3>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <div className="bg-[#1e293b] p-3 rounded-xl border border-slate-800 shadow-2xl">
+          <form onSubmit={handleCreate} className="flex flex-col gap-2">
             {activeCategory === 'notice' && (
               <input
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="제목"
-                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-bold"
+                className="w-full p-2 bg-[#0f172a] border border-slate-700 rounded-lg text-[15px] text-white outline-none focus:border-indigo-500 font-bold"
                 required
               />
             )}
@@ -298,38 +294,38 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 placeholder={activeCategory === 'notice' ? "내용을 입력하세요..." : "자유롭게 이야기를 나누세요 (링크 지원)"}
-                rows={4}
-                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-medium leading-relaxed resize-none"
+                rows={3}
+                className="w-full p-2 bg-[#0f172a] border border-slate-700 rounded-lg text-[15px] text-white outline-none focus:border-indigo-500 font-medium leading-relaxed resize-none"
                 required
               />
-              <div className="absolute bottom-3 right-3 flex items-center gap-4">
+              <div className="absolute bottom-2 right-2">
                 <input type="file" id="post-image" className="hidden" accept="image/*" onChange={handleFileChange} />
                 <label htmlFor="post-image" className="cursor-pointer text-slate-300 hover:text-white transition-colors">
-                  <ImageIcon size={18} />
+                  <ImageIcon size={16} />
                 </label>
               </div>
             </div>
             {image && (
-              <div className="relative w-32 h-32 rounded-lg border border-slate-700 overflow-hidden group">
+              <div className="relative w-24 h-24 rounded-lg border border-slate-700 overflow-hidden group">
                 <img src={image} className="w-full h-full object-cover" alt="preview" />
                 <button type="button" onClick={() => setImage(null)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <X size={12} />
+                  <X size={10} />
                 </button>
               </div>
             )}
             <div className="flex items-center justify-between">
               {activeCategory === 'notice' ? (
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={isImportant} onChange={e => setIsImportant(e.target.checked)} className="rounded border-slate-700 bg-[#0f172a] text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
-                  <span className="text-[15px] text-slate-200 font-bold uppercase tracking-wide">중요 고정</span>
+                  <input type="checkbox" checked={isImportant} onChange={e => setIsImportant(e.target.checked)} className="rounded border-slate-700 bg-[#0f172a] text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5" />
+                  <span className="text-[13px] text-slate-200 font-bold uppercase tracking-wide">중요 고정</span>
                 </label>
               ) : <div></div>}
               <button
                 type="submit"
                 disabled={isResizing}
-                className={`${activeCategory === 'notice' ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-[15px] font-black px-10 py-3 rounded-xl transition-all uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50`}
+                className={`${activeCategory === 'notice' ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-[13px] font-black px-6 py-1.5 rounded-lg transition-all uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50`}
               >
-                {isResizing ? '이미지 최적화 중...' : '등록'}
+                {isResizing ? '최적화 중...' : '등록'}
               </button>
             </div>
           </form>
@@ -337,72 +333,74 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
       )}
 
       {/* Posts Feed */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         {filteredPosts.map(post => {
           const postComments = comments.filter(c => c.postId === post.id && !c.parentId);
           const totalCount = comments.filter(c => c.postId === post.id).length;
           const isOpen = openComments.has(post.id);
 
           return (
-            <div key={post.id} className={`bg-[#1e293b] rounded-2xl border ${post.isImportant ? 'border-indigo-500/50 bg-indigo-900/10' : 'border-slate-800'} shadow-lg relative group transition-all hover:border-slate-700 overflow-hidden`}>
+            <div key={post.id} className={`bg-[#1e293b] rounded-xl border ${post.isImportant ? 'border-indigo-500/50 bg-indigo-900/10' : 'border-slate-800'} shadow-lg relative group transition-all hover:border-slate-700 overflow-hidden`}>
               {post.isImportant && (
-                <div className="absolute top-4 right-4 text-indigo-400">
-                  <Pin size={14} fill="currentColor" />
+                <div className="absolute top-3 right-3 text-indigo-400">
+                  <Pin size={12} fill="currentColor" />
                 </div>
               )}
 
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[13px] font-black text-indigo-400">
+              <div className="px-4 pt-3 pb-2">
+                {/* 작성자 + 제목 + 수정/삭제 버튼 */}
+                <div className="flex justify-between items-start mb-1.5">
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 rounded bg-indigo-900/30 flex items-center justify-center text-[11px] font-black text-indigo-400 shrink-0">
                         {post.authorName.slice(0, 1)}
                       </div>
-                      <span className="text-[15px] font-bold text-slate-300">{post.authorName}</span>
+                      <span className="text-[13px] font-bold text-slate-300">{post.authorName}</span>
                     </div>
                     {post.title && (
-                      <h4 className="text-[21px] font-black text-white tracking-tight">{post.title}</h4>
+                      <h4 className="text-[17px] font-black text-white tracking-tight leading-snug">{post.title}</h4>
                     )}
                   </div>
                   {(adminRole === 'manager' || post.authorUid === profile.uid) && (
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2">
                       <button onClick={() => handleStartEdit(post)} className="text-slate-300 hover:text-amber-500 transition-colors p-1">
-                        <Pencil size={14} />
+                        <Pencil size={12} />
                       </button>
                       {confirmDeleteId === post.id ? (
-                        <button onClick={() => handleDelete(post.id)} className="text-[13px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded transition-colors">
-                          삭제 확정
+                        <button onClick={() => handleDelete(post.id)} className="text-[12px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded transition-colors">
+                          삭제확정
                         </button>
                       ) : (
                         <button onClick={() => setConfirmDeleteId(post.id)} className="text-slate-300 hover:text-red-400 transition-colors p-1">
-                          <Trash2 size={14} />
+                          <Trash2 size={12} />
                         </button>
                       )}
                     </div>
                   )}
                 </div>
 
+                {/* 본문 */}
                 {editingPostId === post.id ? (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2 mb-2">
                     <textarea
                       value={editContent}
                       onChange={e => setEditContent(e.target.value)}
-                      className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
-                      rows={4}
+                      className="w-full p-2 bg-[#0f172a] border border-slate-700 rounded-lg text-[15px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
+                      rows={3}
                     />
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setEditingPostId(null)} className="p-2 text-slate-200 hover:bg-slate-800 rounded"><X size={16} /></button>
-                      <button onClick={() => handleSaveEdit(post.id)} className="p-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"><Check size={16} /></button>
+                      <button onClick={() => setEditingPostId(null)} className="p-1.5 text-slate-200 hover:bg-slate-800 rounded"><X size={14} /></button>
+                      <button onClick={() => handleSaveEdit(post.id)} className="p-1.5 text-white bg-indigo-600 rounded hover:bg-indigo-500"><Check size={14} /></button>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-[17px] text-slate-300 whitespace-pre-wrap leading-relaxed mb-4 font-medium">
+                  <div className="text-[15px] text-slate-300 whitespace-pre-wrap leading-snug mb-2 font-medium">
                     {renderText(post.content)}
                   </div>
                 )}
 
                 {post.image && (
-                  <div className="mb-4 rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-lg">
+                  <div className="mb-2 rounded-lg overflow-hidden border border-slate-800 shadow-xl max-w-sm">
                     <img
                       src={post.image}
                       alt="post content"
@@ -412,19 +410,19 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-[13px] text-slate-300 font-bold font-mono border-t border-slate-800/30 pt-4 uppercase tracking-widest">
-                  <span>{post.category === 'notice' ? '시스템 공지' : '자유 게시글'}</span>
-                  <div className="flex items-center gap-3">
-                    <span>{post.createdAt?.toDate ? format(post.createdAt.toDate(), 'yyyy.MM.dd HH:mm') : '동기화 중...'}</span>
-                    <button
-                      onClick={() => toggleComments(post.id)}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all"
-                    >
-                      <MessageSquare size={12} />
-                      <span>{totalCount > 0 ? totalCount : ''} 댓글</span>
-                      {isOpen ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
-                    </button>
-                  </div>
+                {/* 하단: 일시 + 댓글 버튼 한 줄 */}
+                <div className="flex items-center justify-between border-t border-slate-800/30 pt-1.5">
+                  <span className="text-[12px] text-slate-300 font-mono">
+                    {post.createdAt?.toDate ? format(post.createdAt.toDate(), 'yyyy.MM.dd HH:mm') : '동기화 중...'}
+                  </span>
+                  <button
+                    onClick={() => toggleComments(post.id)}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all text-[12px]"
+                  >
+                    <MessageSquare size={11} />
+                    <span>{totalCount > 0 ? totalCount : ''} 댓글</span>
+                    {isOpen ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                  </button>
                 </div>
               </div>
 
