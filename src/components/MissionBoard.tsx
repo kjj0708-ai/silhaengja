@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, setDoc, serverTimestamp, writeBatch, getDocs, where, updateDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { db } from '../firebase';
@@ -415,7 +415,7 @@ export default function MissionBoard({
     }
   };
 
-  if (loading) return <div className="p-10 text-center text-slate-500">데이터 동기화 중...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-300">데이터 동기화 중...</div>;
 
   return (
     <div className="flex flex-col gap-6 w-full pb-10 animate-in fade-in duration-500">
@@ -466,16 +466,16 @@ export default function MissionBoard({
         <div className="bg-[#1e293b] p-6 rounded-xl border border-slate-800 shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-[16px] font-bold text-slate-200 uppercase tracking-widest flex items-center gap-2">
               <Plus size={14} className="text-amber-500" /> 신규 미션 배포
             </h3>
-            <span className="text-[9px] bg-amber-900/30 text-amber-500 px-2.5 py-1 rounded-full font-black border border-amber-500/20 uppercase tracking-widest">권한: 관리자</span>
+            <span className="text-[19px] bg-amber-900/30 text-amber-500 px-2.5 py-1 rounded-full font-black border border-amber-500/20 uppercase tracking-widest">권한: 관리자</span>
           </div>
           
           <form onSubmit={handleCreateMission} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-3 space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">제목</label>
+                <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider">제목</label>
                 <input 
                   type="text" 
                   required 
@@ -486,9 +486,9 @@ export default function MissionBoard({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">보상 포인트</label>
+                <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider">보상 포인트</label>
                 <div className="flex items-center gap-1.5">
-                  <button type="button" onClick={() => handlePointsChange(points - 5)} className="w-8 h-9 bg-slate-800 border border-slate-700 rounded text-slate-400 hover:bg-slate-700 transition-colors">-</button>
+                  <button type="button" onClick={() => handlePointsChange(points - 5)} className="w-8 h-9 bg-slate-800 border border-slate-700 rounded text-slate-200 hover:bg-slate-700 transition-colors">-</button>
                   <input 
                     type="number" 
                     required 
@@ -498,14 +498,14 @@ export default function MissionBoard({
                     onChange={e => handlePointsChange(Number(e.target.value))}
                     className="flex-1 h-9 bg-[#0f172a] border border-slate-700 rounded text-xs text-white outline-none focus:border-amber-500 font-mono text-center" 
                   />
-                  <button type="button" onClick={() => handlePointsChange(points + 5)} className="w-8 h-9 bg-slate-800 border border-slate-700 rounded text-slate-400 hover:bg-slate-700 transition-colors">+</button>
+                  <button type="button" onClick={() => handlePointsChange(points + 5)} className="w-8 h-9 bg-slate-800 border border-slate-700 rounded text-slate-200 hover:bg-slate-700 transition-colors">+</button>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-3 space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">설명</label>
+                <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider">설명</label>
                 <input 
                   type="text" 
                   required 
@@ -516,7 +516,7 @@ export default function MissionBoard({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider">
                   마감 종료일
                 </label>
                 <div className="relative group cursor-pointer" onClick={e => {
@@ -537,7 +537,7 @@ export default function MissionBoard({
             <button 
               type="submit" 
               disabled={isCreating}
-              className="w-full bg-slate-100 hover:bg-white disabled:bg-slate-800 text-[#0f172a] font-black py-3 rounded-lg text-[11px] transition-all shadow-xl uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95"
+              className="w-full bg-slate-100 hover:bg-white disabled:bg-slate-800 text-[#0f172a] font-black py-3 rounded-lg text-[16px] transition-all shadow-xl uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95"
             >
               {isCreating ? '네트워크 요청 처리 중...' : '신규미션 생성'}
             </button>
@@ -547,19 +547,19 @@ export default function MissionBoard({
 
       {/* Mission List Header & Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6 border-b border-slate-800 pb-4">
-        <h3 className="text-[12px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+        <h3 className="text-[18px] font-black text-white uppercase tracking-widest flex items-center gap-2">
            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 미션 인증
         </h3>
         <div className="flex bg-[#0f172a] p-1 rounded-lg border border-slate-800">
           <button 
             onClick={() => setShowOngoing(true)}
-            className={`px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase tracking-tight ${showOngoing ? 'bg-[#1e293b] text-indigo-400 shadow-xl border border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`px-4 py-1.5 rounded text-[15px] font-bold transition-all uppercase tracking-tight ${showOngoing ? 'bg-[#1e293b] text-indigo-400 shadow-xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
           >
             진행 중인 미션 ({ongoingMissions.length})
           </button>
           <button 
             onClick={() => setShowOngoing(false)}
-            className={`px-4 py-1.5 rounded text-[10px] font-bold transition-all uppercase tracking-tight ${!showOngoing ? 'bg-[#1e293b] text-white shadow-xl border border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}
+            className={`px-4 py-1.5 rounded text-[15px] font-bold transition-all uppercase tracking-tight ${!showOngoing ? 'bg-[#1e293b] text-white shadow-xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
           >
             종료된 미션 ({expiredMissions.length})
           </button>
@@ -570,7 +570,7 @@ export default function MissionBoard({
         {currentMissions.length === 0 && (
           <div className="md:col-span-2 py-24 text-center bg-[#1e293b] rounded-xl border border-dashed border-slate-800 flex flex-col items-center gap-3">
             <AlertCircle size={32} className="text-slate-700" />
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">표시할 미션 데이터가 없습니다.</p>
+            <p className="text-[15px] text-slate-300 font-bold uppercase tracking-widest">표시할 미션 데이터가 없습니다.</p>
           </div>
         )}
         
@@ -590,7 +590,7 @@ export default function MissionBoard({
                       type="text" 
                       value={editTitle} 
                       onChange={e => setEditTitle(e.target.value)}
-                      className="bg-[#0f172a] text-[14px] font-bold p-2 border border-slate-700 rounded outline-none focus:border-amber-500 text-white w-full"
+                      className="bg-[#0f172a] text-[21px] font-bold p-2 border border-slate-700 rounded outline-none focus:border-amber-500 text-white w-full"
                     />
                     <textarea 
                       value={editDescription} 
@@ -599,24 +599,24 @@ export default function MissionBoard({
                     />
                     <div className="flex gap-2 items-center">
                       <div className="flex-1 flex items-center gap-1 bg-[#0f172a] border border-slate-700 rounded px-2">
-                        <span className="text-[10px] text-slate-500 font-bold">PT</span>
+                        <span className="text-[15px] text-slate-300 font-bold">PT</span>
                         <input 
                           type="number" 
                           step="5"
                           value={editPoints} 
                           onChange={e => setEditPoints(Number(e.target.value))}
-                          className="bg-transparent text-[11px] p-2 outline-none text-white w-full font-mono text-center"
+                          className="bg-transparent text-[16px] p-2 outline-none text-white w-full font-mono text-center"
                         />
                       </div>
                       <input 
                         type="date" 
                         value={editDeadline} 
                         onChange={e => setEditDeadline(e.target.value)}
-                        className="bg-[#0f172a] text-[11px] p-2 border border-slate-700 rounded outline-none focus:border-amber-500 text-slate-300 font-mono [color-scheme:dark]"
+                        className="bg-[#0f172a] text-[16px] p-2 border border-slate-700 rounded outline-none focus:border-amber-500 text-slate-300 font-mono [color-scheme:dark]"
                       />
                     </div>
                     <div className="flex justify-end gap-2 mt-1">
-                      <button onClick={() => setEditingMissionId(null)} className="p-2 text-slate-400 hover:bg-slate-800 rounded transition-colors"><X size={16}/></button>
+                      <button onClick={() => setEditingMissionId(null)} className="p-2 text-slate-200 hover:bg-slate-800 rounded transition-colors"><X size={16}/></button>
                       <button onClick={() => handleSaveEditMission(m.id)} className="p-2 text-amber-500 hover:bg-amber-500/10 rounded transition-colors"><Check size={16}/></button>
                     </div>
                   </div>
@@ -624,29 +624,29 @@ export default function MissionBoard({
                   <>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex flex-col gap-1">
-                        <h4 className="text-[15px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors uppercase">{m.title}</h4>
+                        <h4 className="text-[22px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors uppercase">{m.title}</h4>
                         {adminRole === 'manager' && (
                           <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleStartEditMission(m)} className="p-1 text-slate-500 hover:text-amber-500 transition-colors"><Pencil size={12} /></button>
+                            <button onClick={() => handleStartEditMission(m)} className="p-1 text-slate-300 hover:text-amber-500 transition-colors"><Pencil size={12} /></button>
                             {confirmDeleteMissionId === m.id ? (
                                <button 
                                  onClick={() => handleDeleteMission(m.id)} 
-                                 className="px-2 py-1 bg-red-600 text-white text-[9px] font-bold rounded animate-pulse"
+                                 className="px-2 py-1 bg-red-600 text-white text-[19px] font-bold rounded animate-pulse"
                                >
                                  정말 삭제?
                                </button>
                             ) : (
-                               <button onClick={() => setConfirmDeleteMissionId(m.id)} className="p-1 text-slate-500 hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
+                               <button onClick={() => setConfirmDeleteMissionId(m.id)} className="p-1 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
                             )}
                           </div>
                         )}
                       </div>
-                      <div className="shrink-0 bg-indigo-900/30 text-indigo-400 font-bold font-mono text-[11px] px-2.5 py-1 rounded border border-indigo-500/20 shadow-sm">
+                      <div className="shrink-0 bg-indigo-900/30 text-indigo-400 font-bold font-mono text-[16px] px-2.5 py-1 rounded border border-indigo-500/20 shadow-sm">
                         +{m.points}
                       </div>
                     </div>
-                    <p className="text-xs text-slate-400 whitespace-pre-wrap leading-relaxed mb-4">{m.description}</p>
-                    <div className="flex items-center gap-4 text-[9px] text-slate-500 font-bold uppercase tracking-widest font-mono">
+                    <p className="text-xs text-slate-200 whitespace-pre-wrap leading-relaxed mb-4">{m.description}</p>
+                    <div className="flex items-center gap-4 text-[19px] text-slate-300 font-bold uppercase tracking-widest font-mono">
                       <div className="flex items-center gap-1">
                         <Calendar size={12} className="opacity-50" />
                         {m.createdAt?.toDate ? format(m.createdAt.toDate(), 'yyyy.MM.dd') : '전송 중...'}
@@ -665,7 +665,7 @@ export default function MissionBoard({
               {/* Feed of verifications */}
               <div className="flex-1 p-5 flex flex-col gap-4 max-h-[300px] overflow-y-auto bg-[#0f172a]">
                 <div className="flex items-center justify-between sticky top-0 bg-[#0f172a]/90 backdrop-blur-md py-1 z-10">
-                  <h5 className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                  <h5 className="text-[19px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     ({mExecutions.length})
                   </h5>
@@ -673,35 +673,35 @@ export default function MissionBoard({
                 
                 {mExecutions.length === 0 && (
                   <div className="py-12 text-center flex flex-col items-center gap-2">
-                    <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest italic">인증 대기 중...</p>
+                    <p className="text-[19px] text-slate-300 font-bold uppercase tracking-widest italic">인증 대기 중...</p>
                   </div>
                 )}
                 
                 {mExecutions.map(ex => (
                   <div key={ex.id} className="flex gap-3 items-start py-2 group/item">
                     <div className="w-7 h-7 rounded bg-indigo-900/30 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                      <span className="text-[10px] font-bold text-indigo-400">{ex.userName.slice(0, 1)}</span>
+                      <span className="text-[15px] font-bold text-indigo-400">{ex.userName.slice(0, 1)}</span>
                     </div>
                     <div className="flex flex-col gap-2 flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-slate-300">{ex.userName}</span>
+                        <span className="text-[16px] font-bold text-slate-300">{ex.userName}</span>
                         <div className="flex items-center gap-1">
-                          <span className="text-[9px] text-slate-600 font-mono">{ex.submittedAt?.toDate ? format(ex.submittedAt.toDate(), 'MM.dd HH:mm') : ''}</span>
+                          <span className="text-[19px] text-slate-300 font-mono">{ex.submittedAt?.toDate ? format(ex.submittedAt.toDate(), 'MM.dd HH:mm') : ''}</span>
                           {(ex.userId === profile.uid || adminRole === 'manager') && (
                             <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                               {ex.userId === profile.uid && (
-                                <button onClick={() => handleStartEditExec(ex)} className="p-1 hover:text-indigo-400 text-slate-500"><Pencil size={10} /></button>
+                                <button onClick={() => handleStartEditExec(ex)} className="p-1 hover:text-indigo-400 text-slate-300"><Pencil size={10} /></button>
                               )}
                               
                               {confirmDeleteExecId === ex.id ? (
                                 <button 
                                   onClick={() => handleDeleteExec(ex, m.points)} 
-                                  className="px-1.5 py-0.5 bg-red-600 text-white text-[8px] font-bold rounded"
+                                  className="px-1.5 py-0.5 bg-red-600 text-white text-[12px] font-bold rounded"
                                 >
                                   삭제?
                                 </button>
                               ) : (
-                                <button onClick={() => setConfirmDeleteExecId(ex.id)} className="p-1 hover:text-red-400 text-slate-500"><Trash2 size={10} /></button>
+                                <button onClick={() => setConfirmDeleteExecId(ex.id)} className="p-1 hover:text-red-400 text-slate-300"><Trash2 size={10} /></button>
                               )}
                             </div>
                           )}
@@ -713,15 +713,15 @@ export default function MissionBoard({
                           <textarea 
                             value={editExecContent} 
                             onChange={e => setEditExecContent(e.target.value)} 
-                            className="w-full text-[12px] bg-[#0f172a] border border-indigo-500/50 rounded-lg p-2.5 text-white outline-none focus:border-indigo-500 resize-none min-h-[60px]"
+                            className="w-full text-[18px] bg-[#0f172a] border border-indigo-500/50 rounded-lg p-2.5 text-white outline-none focus:border-indigo-500 resize-none min-h-[60px]"
                           />
                           <div className="flex justify-end gap-2">
-                            <button onClick={() => setEditingExecId(null)} className="p-1.5 hover:bg-slate-800 rounded text-slate-500 hover:text-white transition-colors"><X size={12} /></button>
+                            <button onClick={() => setEditingExecId(null)} className="p-1.5 hover:bg-slate-800 rounded text-slate-300 hover:text-white transition-colors"><X size={12} /></button>
                             <button onClick={() => handleSaveEditExec(ex.id)} className="p-1.5 hover:bg-indigo-500/20 rounded text-indigo-400 hover:text-indigo-300 transition-colors"><Check size={12} /></button>
                           </div>
                         </div>
                       ) : (
-                        <div className="text-[12px] text-slate-300 whitespace-pre-wrap break-words bg-[#1e293b]/50 p-2.5 rounded-lg border border-slate-800 group-hover/item:border-indigo-500/30 transition-all">
+                        <div className="text-[18px] text-slate-300 whitespace-pre-wrap break-words bg-[#1e293b]/50 p-2.5 rounded-lg border border-slate-800 group-hover/item:border-indigo-500/30 transition-all">
                           {renderContent(ex.content)}
                         </div>
                       )}
@@ -747,7 +747,7 @@ export default function MissionBoard({
                   <>
                     {!showOngoing ? (
                       <div className="text-center py-2">
-                        <span className="text-[10px] font-bold text-slate-500 bg-[#0f172a] px-6 py-2 rounded border border-slate-800 flex items-center justify-center gap-2 uppercase tracking-widest">
+                        <span className="text-[15px] font-bold text-slate-300 bg-[#0f172a] px-6 py-2 rounded border border-slate-800 flex items-center justify-center gap-2 uppercase tracking-widest">
                            <Lock size={12} className="opacity-50" /> 프로토콜 종료됨
                         </span>
                       </div>
@@ -760,7 +760,7 @@ export default function MissionBoard({
                                 rows={2}
                                 value={submitContent}
                                 onChange={(e) => setSubmitContent(e.target.value)}
-                                className="w-full text-xs p-3 bg-[#0f172a] border border-slate-700 rounded-lg outline-none focus:border-indigo-500 text-white resize-none shadow-inner transition-all placeholder:text-slate-600"
+                                className="w-full text-xs p-3 bg-[#0f172a] border border-slate-700 rounded-lg outline-none focus:border-indigo-500 text-white resize-none shadow-inner transition-all placeholder:text-slate-300"
                                 placeholder="..."
                              />
                              
@@ -775,14 +775,14 @@ export default function MissionBoard({
                                   />
                                   <label 
                                     htmlFor={`file-${m.id}`}
-                                    className={`text-[9px] font-black px-3 py-2 rounded cursor-pointer border uppercase tracking-widest transition-all ${
-                                      submitImage ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-[#0f172a] border-slate-700 text-slate-400 hover:text-white'
+                                    className={`text-[19px] font-black px-3 py-2 rounded cursor-pointer border uppercase tracking-widest transition-all ${
+                                      submitImage ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-[#0f172a] border-slate-700 text-slate-200 hover:text-white'
                                     }`}
                                   >
                                     {isResizing ? '이미지 처리 중...' : submitImage ? '이미지 로드됨' : '이미지 첨부'}
                                   </label>
                                   {submitImage && (
-                                    <button type="button" onClick={() => setSubmitImage(null)} className="text-[9px] text-rose-500 font-bold uppercase">삭제</button>
+                                    <button type="button" onClick={() => setSubmitImage(null)} className="text-[19px] text-rose-500 font-bold uppercase">삭제</button>
                                   )}
                                 </div>
                                 <div className="flex gap-2">
@@ -790,8 +790,8 @@ export default function MissionBoard({
                                     setSubmittingMission(null);
                                     setSubmitImage(null);
                                     setSubmitContent('');
-                                  }} className="text-[10px] font-bold text-slate-500 px-3 py-2 hover:text-white transition-colors uppercase">취소</button>
-                                  <button type="submit" disabled={isResizing} className="text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded shadow-lg disabled:opacity-50 transition-all uppercase tracking-widest active:scale-95">
+                                  }} className="text-[15px] font-bold text-slate-300 px-3 py-2 hover:text-white transition-colors uppercase">취소</button>
+                                  <button type="submit" disabled={isResizing} className="text-[15px] font-black bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded shadow-lg disabled:opacity-50 transition-all uppercase tracking-widest active:scale-95">
                                     등록하기
                                   </button>
                                 </div>
@@ -805,7 +805,7 @@ export default function MissionBoard({
                         ) : (
                           <button 
                             onClick={() => setSubmittingMission(m.id)}
-                            className="w-full py-3 bg-indigo-600 text-white font-black rounded-lg text-[11px] hover:bg-indigo-500 transition-all shadow-xl uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-indigo-600 text-white font-black rounded-lg text-[16px] hover:bg-indigo-500 transition-all shadow-xl uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2"
                           >
                             <Plus size={14} /> 미션 실행 인증하기
                           </button>
@@ -816,7 +816,7 @@ export default function MissionBoard({
                 ) : (
                   <div className="flex items-center justify-center gap-2 py-3 bg-emerald-900/20 text-emerald-400 rounded-lg border border-emerald-500/30">
                     <CheckCircle2 size={16} className="text-emerald-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">인증 상태: 완료됨</span>
+                    <span className="text-[15px] font-black uppercase tracking-widest">인증 상태: 완료됨</span>
                   </div>
                 )}
               </div>

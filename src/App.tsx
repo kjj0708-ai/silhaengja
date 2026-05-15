@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import {
   Users,
   CalendarCheck,
@@ -81,33 +81,33 @@ function LoginScreen({ onError }: { onError: (msg: string | null) => void }) {
           </div>
         </div>
         <h1 className="text-xl font-bold text-white mb-1 tracking-tight">실행자들 ARCHITECT</h1>
-        <p className="text-slate-500 mb-6 text-[10px] uppercase tracking-widest font-mono">Build Environment v1.0.0</p>
+        <p className="text-slate-300 mb-6 text-[15px] uppercase tracking-widest font-mono">Build Environment v1.0.0</p>
 
         {mode === 'select' ? (
           <div className="flex flex-col gap-3">
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg active:scale-95 text-[12px]"
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg active:scale-95 text-[18px]"
             >
               <LogIn size={15} /> 구글 계정으로 로그인
             </button>
             <div className="flex items-center gap-3 my-1">
               <div className="flex-1 h-px bg-slate-700"></div>
-              <span className="text-[10px] text-slate-500 font-mono">OR</span>
+              <span className="text-[15px] text-slate-300 font-mono">OR</span>
               <div className="flex-1 h-px bg-slate-700"></div>
             </div>
             <button
               onClick={() => setMode('pin')}
-              className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 font-bold py-3 px-4 rounded-lg transition-all text-[12px]"
+              className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 font-bold py-3 px-4 rounded-lg transition-all text-[18px]"
             >
               🔑 간편 로그인 (아이디 + PIN)
             </button>
-            <p className="text-[10px] text-slate-600 mt-1">만든이: 초실행관</p>
+            <p className="text-[15px] text-slate-300 mt-1">만든이: 초실행관</p>
           </div>
         ) : (
           <form onSubmit={handlePinLogin} className="flex flex-col gap-3 text-left">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">아이디</label>
+              <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider mb-1">아이디</label>
               <input
                 type="text"
                 value={pinId}
@@ -118,7 +118,7 @@ function LoginScreen({ onError }: { onError: (msg: string | null) => void }) {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">PIN (6자리 숫자)</label>
+              <label className="block text-[15px] font-bold text-slate-300 uppercase tracking-wider mb-1">PIN (6자리 숫자)</label>
               <input
                 type="password"
                 inputMode="numeric"
@@ -130,22 +130,22 @@ function LoginScreen({ onError }: { onError: (msg: string | null) => void }) {
                 className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white outline-none focus:border-indigo-500 transition-all font-mono tracking-[0.5em]"
               />
             </div>
-            {pinError && <p className="text-[11px] text-rose-400 font-medium">{pinError}</p>}
+            {pinError && <p className="text-[16px] text-rose-400 font-medium">{pinError}</p>}
             <button
               type="submit"
               disabled={pinLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 rounded-lg transition-all text-[12px] active:scale-95 mt-1"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 rounded-lg transition-all text-[18px] active:scale-95 mt-1"
             >
               {pinLoading ? '로그인 중...' : '로그인 / 가입하기'}
             </button>
             <button
               type="button"
               onClick={() => { setMode('select'); setPinError(''); }}
-              className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-[16px] text-slate-300 hover:text-slate-300 transition-colors"
             >
               ← 뒤로
             </button>
-            <p className="text-[9px] text-slate-600 text-center">처음 입력하면 자동으로 계정이 생성됩니다</p>
+            <p className="text-[19px] text-slate-300 text-center">처음 입력하면 자동으로 계정이 생성됩니다</p>
           </form>
         )}
       </div>
@@ -233,7 +233,7 @@ export default function App() {
       <div className="flex h-screen items-center justify-center bg-[#0f172a] p-4">
         <div className="bg-[#1e293b] p-6 rounded-xl shadow-lg border border-red-900/30 text-center max-w-sm">
           <h2 className="text-red-400 font-bold mb-2">오류가 발생했습니다</h2>
-          <p className="text-slate-400 text-[11px] mb-4 whitespace-pre-line">{renderError}</p>
+          <p className="text-slate-200 text-[16px] mb-4 whitespace-pre-line">{renderError}</p>
           <div className="flex flex-col gap-2">
             <button onClick={() => window.location.reload()} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs hover:bg-indigo-500 transition-colors">새로고침</button>
             <button onClick={() => window.open(window.location.href, '_blank')} className="bg-slate-800 text-white px-4 py-2 rounded-lg text-xs hover:bg-slate-700 transition-colors">새 탭에서 열기 (강추)</button>
@@ -247,7 +247,7 @@ export default function App() {
     return (
       <div className="flex h-screen items-center justify-center bg-[#0f172a] flex-col gap-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-        <p className="text-slate-500 text-[11px] font-mono uppercase tracking-widest">구동 환경 초기화 중...</p>
+        <p className="text-slate-300 text-[16px] font-mono uppercase tracking-widest">구동 환경 초기화 중...</p>
       </div>
     );
   }
@@ -269,13 +269,13 @@ export default function App() {
               <Logo size={20} />
            </div>
            <div>
-             <h1 className="text-[15px] font-black text-white leading-tight tracking-tighter">실행자들</h1>
-             <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest italic">데이터 센터</p>
+             <h1 className="text-[22px] font-black text-white leading-tight tracking-tighter">실행자들</h1>
+             <p className="text-[19px] text-slate-300 font-mono uppercase tracking-widest italic">데이터 센터</p>
            </div>
         </div>
         
         <div className="p-4 border-b border-slate-800/30">
-           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">메뉴</span>
+           <span className="text-[15px] font-bold uppercase tracking-widest text-slate-300">메뉴</span>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-2">
@@ -286,13 +286,13 @@ export default function App() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-6 py-2.5 text-[11px] font-medium transition-all group ${
+                className={`w-full flex items-center gap-3 px-6 py-2.5 text-[16px] font-medium transition-all group ${
                   isActive 
                     ? 'bg-indigo-900/20 text-indigo-400 border-r-2 border-indigo-500' 
-                    : 'text-slate-400 hover:bg-slate-800/50'
+                    : 'text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Icon size={14} className={`${isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <Icon size={14} className={`${isActive ? 'text-indigo-400' : 'text-slate-300 group-hover:text-slate-300'}`} />
                 {item.name.toUpperCase()}
               </button>
             );
@@ -305,10 +305,10 @@ export default function App() {
                  <span className="text-xs font-black text-indigo-400">{profile!.name.slice(0, 1)}</span>
               </div>
               <div className="flex-1 min-w-0">
-                 <p className="text-[11px] font-bold text-white truncate">{profile!.name}</p>
-                 <p className="text-[9px] text-slate-500 font-mono truncate">{profile!.affiliation || profile!.tier}</p>
+                 <p className="text-[16px] font-bold text-white truncate">{profile!.name}</p>
+                 <p className="text-[19px] text-slate-300 font-mono truncate">{profile!.affiliation || profile!.tier}</p>
               </div>
-              <button onClick={logout} className="text-slate-500 hover:text-red-400 transition-colors">
+              <button onClick={logout} className="text-slate-300 hover:text-red-400 transition-colors">
                  <LogOut size={14} />
               </button>
            </div>
@@ -324,33 +324,33 @@ export default function App() {
                  <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-slate-700 bg-[#1e293b] p-0.5">
                     <Logo size={16} />
                  </div>
-                 <h1 className="text-[14px] font-black text-white tracking-tighter">실행자들</h1>
+                 <h1 className="text-[21px] font-black text-white tracking-tighter">실행자들</h1>
               </div>
               <div className="h-4 w-[1px] bg-slate-700 hidden md:hidden"></div>
-              <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <h2 className="text-[16px] font-bold text-slate-200 uppercase tracking-wider">
                  {navigation.find(n => n.id === activeTab)?.name}
               </h2>
            </div>
            <div className="flex items-center gap-3">
               <button 
                 onClick={() => setIsProfileOpen(true)}
-                className="p-2 text-slate-500 hover:text-indigo-400 transition-all hover:bg-slate-800 rounded-lg relative group"
+                className="p-2 text-slate-300 hover:text-indigo-400 transition-all hover:bg-slate-800 rounded-lg relative group"
               >
                 <Settings size={18} />
-                <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[10px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">프로필 수정</span>
+                <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[15px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">프로필 수정</span>
               </button>
               
               {(adminRole === 'manager' || adminRole === 'treasurer') && (
                 <button 
                   onClick={() => setIsSettingsOpen(true)}
-                  className="p-2 text-slate-500 hover:text-amber-500 transition-all hover:bg-slate-800 rounded-lg relative group"
+                  className="p-2 text-slate-300 hover:text-amber-500 transition-all hover:bg-slate-800 rounded-lg relative group"
                 >
                   <Users size={20} />
-                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[10px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">회원관리</span>
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-[15px] shadow-2xl text-white px-2 py-1.5 rounded border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">회원관리</span>
                 </button>
               )}
               {(adminRole === 'manager' || adminRole === 'treasurer') && (
-                <div className="px-3 py-1.5 rounded bg-amber-900/20 text-[10px] text-amber-500 border border-amber-900/30 font-bold">
+                <div className="px-3 py-1.5 rounded bg-amber-900/20 text-[15px] text-amber-500 border border-amber-900/30 font-bold">
                    권한: {adminRole === 'manager' ? '관리자' : '총무'}
                 </div>
               )}
@@ -383,7 +383,7 @@ export default function App() {
         />
 
         {/* Footer Bar */}
-        <footer className="h-6 bg-indigo-600 text-white flex items-center justify-between px-3 text-[10px] font-medium shrink-0">
+        <footer className="h-6 bg-indigo-600 text-white flex items-center justify-between px-3 text-[15px] font-medium shrink-0">
           <div className="flex items-center gap-4">
             <span>● 렌더링 엔진: 활성</span>
             <span>● 지연 시간: 12ms</span>
@@ -405,8 +405,8 @@ export default function App() {
              <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center p-2 rounded-lg text-[9px] font-bold transition-all ${
-                isActive ? 'text-indigo-400' : 'text-slate-500'
+              className={`flex flex-col items-center p-2 rounded-lg text-[19px] font-bold transition-all ${
+                isActive ? 'text-indigo-400' : 'text-slate-300'
               }`}
             >
               <Icon size={16} className="mb-1" />

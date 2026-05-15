@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, addDoc, deleteDoc, serverTimestamp, query, orderBy, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { Megaphone, Plus, Trash2, Pin, MessageSquare, Image as ImageIcon, Link as LinkIcon, X, Check, Pencil } from 'lucide-react';
@@ -205,7 +205,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
     });
   };
 
-  if (loading) return <div className="p-10 text-center text-slate-400 font-mono tracking-widest text-[11px]">데이터 연동 중...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-200 font-mono tracking-widest text-[16px]">데이터 연동 중...</div>;
 
   const filteredPosts = posts.filter(p => p.category === activeCategory);
   if (activeCategory === 'notice') {
@@ -222,13 +222,13 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
       <div className="flex bg-[#1e293b] p-1 rounded-xl border border-slate-800 shadow-xl self-start">
         <button 
           onClick={() => { setActiveCategory('notice'); setImage(null); }}
-          className={`px-6 py-2 rounded-lg text-[11px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'notice' ? 'bg-[#0f172a] text-indigo-400 shadow-2xl border border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`px-6 py-2 rounded-lg text-[16px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'notice' ? 'bg-[#0f172a] text-indigo-400 shadow-2xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
         >
           <Megaphone size={14} /> 공지사항
         </button>
         <button 
           onClick={() => { setActiveCategory('free'); setImage(null); }}
-          className={`px-6 py-2 rounded-lg text-[11px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'free' ? 'bg-[#0f172a] text-emerald-400 shadow-2xl border border-slate-700' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`px-6 py-2 rounded-lg text-[16px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'free' ? 'bg-[#0f172a] text-emerald-400 shadow-2xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
         >
           <MessageSquare size={14} /> 자유게시판
         </button>
@@ -237,7 +237,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
       {/* Post Creation (Restricted for notices, free for everyone) */}
       {(activeCategory === 'free' || (activeCategory === 'notice' && adminRole === 'manager')) && (
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-2xl">
-          <h3 className="text-[11px] font-bold mb-4 flex items-center gap-2 text-slate-400 uppercase tracking-widest">
+          <h3 className="text-[16px] font-bold mb-4 flex items-center gap-2 text-slate-200 uppercase tracking-widest">
             <Plus size={14} className={activeCategory === 'notice' ? 'text-indigo-500' : 'text-emerald-500'} /> {activeCategory === 'notice' ? '신규 공지 등록' : '새로운 게시글 작성'}
           </h3>
           <form onSubmit={handleCreate} className="flex flex-col gap-4">
@@ -247,7 +247,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                 value={title} 
                 onChange={e => setTitle(e.target.value)}
                 placeholder="제목"
-                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[13px] text-white outline-none focus:border-indigo-500 font-bold"
+                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[19px] text-white outline-none focus:border-indigo-500 font-bold"
                 required
               />
             )}
@@ -257,12 +257,12 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                 onChange={e => setContent(e.target.value)}
                 placeholder={activeCategory === 'notice' ? "내용을 입력하세요..." : "자유롭게 이야기를 나누세요 (링크 지원)"}
                 rows={4}
-                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[13px] text-white outline-none focus:border-indigo-500 font-medium leading-relaxed resize-none"
+                className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[19px] text-white outline-none focus:border-indigo-500 font-medium leading-relaxed resize-none"
                 required
               />
               <div className="absolute bottom-3 right-3 flex items-center gap-4">
                 <input type="file" id="post-image" className="hidden" accept="image/*" onChange={handleFileChange} />
-                <label htmlFor="post-image" className="cursor-pointer text-slate-500 hover:text-white transition-colors">
+                <label htmlFor="post-image" className="cursor-pointer text-slate-300 hover:text-white transition-colors">
                   <ImageIcon size={18} />
                 </label>
               </div>
@@ -290,13 +290,13 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                     onChange={e => setIsImportant(e.target.checked)}
                     className="rounded border-slate-700 bg-[#0f172a] text-indigo-600 focus:ring-indigo-500 h-4 w-4" 
                   />
-                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">중요 고정</span>
+                  <span className="text-[16px] text-slate-200 font-bold uppercase tracking-wide">중요 고정</span>
                 </label>
               ) : <div></div>}
               <button 
                 type="submit"
                 disabled={isResizing}
-                className={`${activeCategory === 'notice' ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-[11px] font-black px-10 py-3 rounded-xl transition-all uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50`}
+                className={`${activeCategory === 'notice' ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-[16px] font-black px-10 py-3 rounded-xl transition-all uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50`}
               >
                 {isResizing ? '이미지 최적화 중...' : '등록'}
               </button>
@@ -318,14 +318,14 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
             <div className="flex justify-between items-start mb-4">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[10px] font-black text-indigo-400">
+                  <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[15px] font-black text-indigo-400">
                     {post.authorName.slice(0, 1)}
                   </div>
-                  <span className="text-[11px] font-bold text-slate-300">{post.authorName}</span>
-                  <span className="text-[10px] text-slate-600 italic font-mono truncate max-w-[100px]">({post.authorUid.slice(0, 8)})</span>
+                  <span className="text-[16px] font-bold text-slate-300">{post.authorName}</span>
+                  <span className="text-[15px] text-slate-300 italic font-mono truncate max-w-[100px]">({post.authorUid.slice(0, 8)})</span>
                 </div>
                 {post.title && (
-                  <h4 className="text-[16px] font-black text-white tracking-tight">
+                  <h4 className="text-[24px] font-black text-white tracking-tight">
                     {post.title}
                   </h4>
                 )}
@@ -333,15 +333,15 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
               
               {(adminRole === 'manager' || post.authorUid === profile.uid) && (
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleStartEdit(post)} className="text-slate-500 hover:text-amber-500 transition-colors p-1">
+                  <button onClick={() => handleStartEdit(post)} className="text-slate-300 hover:text-amber-500 transition-colors p-1">
                     <Pencil size={14} />
                   </button>
                   {confirmDeleteId === post.id ? (
-                    <button onClick={() => handleDelete(post.id)} className="text-[10px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded transition-colors">
+                    <button onClick={() => handleDelete(post.id)} className="text-[15px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded transition-colors">
                       삭제 확정
                     </button>
                   ) : (
-                    <button onClick={() => setConfirmDeleteId(post.id)} className="text-slate-600 hover:text-red-400 transition-colors p-1">
+                    <button onClick={() => setConfirmDeleteId(post.id)} className="text-slate-300 hover:text-red-400 transition-colors p-1">
                       <Trash2 size={14} />
                     </button>
                   )}
@@ -354,16 +354,16 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                 <textarea 
                   value={editContent} 
                   onChange={e => setEditContent(e.target.value)}
-                  className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[13px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
+                  className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[19px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
                   rows={4}
                 />
                 <div className="flex justify-end gap-2">
-                  <button onClick={() => setEditingPostId(null)} className="p-2 text-slate-400 hover:bg-slate-800 rounded"><X size={16} /></button>
+                  <button onClick={() => setEditingPostId(null)} className="p-2 text-slate-200 hover:bg-slate-800 rounded"><X size={16} /></button>
                   <button onClick={() => handleSaveEdit(post.id)} className="p-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"><Check size={16} /></button>
                 </div>
               </div>
             ) : (
-              <div className="text-[13px] text-slate-300 whitespace-pre-wrap leading-relaxed mb-4 font-medium">
+              <div className="text-[19px] text-slate-300 whitespace-pre-wrap leading-relaxed mb-4 font-medium">
                 {renderText(post.content)}
               </div>
             )}
@@ -379,7 +379,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
               </div>
             )}
 
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold font-mono border-t border-slate-800/30 pt-4 uppercase tracking-widest">
+            <div className="flex items-center justify-between text-[15px] text-slate-300 font-bold font-mono border-t border-slate-800/30 pt-4 uppercase tracking-widest">
               <span>{post.category === 'notice' ? '시스템 공지' : '자유 게시글'}</span>
               <span>{post.createdAt?.toDate ? format(post.createdAt.toDate(), 'yyyy.MM.dd HH:mm') : '동기화 중...'}</span>
             </div>
@@ -387,16 +387,16 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
         ))}
         {filteredPosts.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center bg-[#1e293b] rounded-2xl border border-dashed border-slate-800">
-            <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-600 mb-6 transition-transform">
+            <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-300 mb-6 transition-transform">
               <Megaphone size={32} />
             </div>
             <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tight">게시글이 비어있습니다</h3>
-            <p className="text-[11px] text-slate-500 font-mono tracking-widest uppercase mb-8">No transmissions detected in this frequency</p>
+            <p className="text-[16px] text-slate-300 font-mono tracking-widest uppercase mb-8">No transmissions detected in this frequency</p>
             {activeCategory === 'free' && (
-              <p className="text-xs text-slate-400 max-w-xs font-medium">첫 번째 게시글을 작성하여 실행자들에게 메시지를 전송하세요.</p>
+              <p className="text-xs text-slate-200 max-w-xs font-medium">첫 번째 게시글을 작성하여 실행자들에게 메시지를 전송하세요.</p>
             )}
             {activeCategory === 'notice' && (
-              <p className="text-xs text-slate-400 max-w-xs font-medium">현재 등록된 중요 공지사항이 없습니다.</p>
+              <p className="text-xs text-slate-200 max-w-xs font-medium">현재 등록된 중요 공지사항이 없습니다.</p>
             )}
           </div>
         )}

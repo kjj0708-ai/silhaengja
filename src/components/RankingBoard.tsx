@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Trophy, Shield, UserPlus, UserMinus } from 'lucide-react';
@@ -42,7 +42,7 @@ export default function RankingBoard({ adminRole }: { adminRole: 'manager' | 'tr
     }
   };
 
-  if (loading) return <div className="p-10 text-center text-slate-400">랭킹 로드 중...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-200">랭킹 로드 중...</div>;
 
   const rankedMembers = members.map((member, index, arr) => {
     const rank = arr.findIndex(m => m.totalPoints === member.totalPoints) + 1;
@@ -54,34 +54,34 @@ export default function RankingBoard({ adminRole }: { adminRole: 'manager' | 'tr
       {/* Leaderboard Table */}
       <div className="bg-[#1e293b] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden max-w-2xl mx-auto w-full mt-4">
         <div className="p-4 bg-slate-800/50 border-b border-slate-800 flex items-center justify-between">
-           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">실행자 전체 랭킹 현황</span>
-           <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
+           <span className="text-[15px] font-bold uppercase tracking-widest text-slate-200">실행자 전체 랭킹 현황</span>
+           <div className="flex items-center gap-2 text-[15px] font-mono text-slate-300">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 실시간 동기화
            </div>
         </div>
         <div className="flex flex-col">
           {rankedMembers.map((member) => (
             <div key={member.uid} className="flex items-center gap-3 px-4 py-1.5 border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors group">
-              <div className="w-6 text-[12px] font-black font-mono text-slate-500 group-hover:text-amber-400 transition-colors flex justify-center italic shrink-0">
+              <div className="w-6 text-[18px] font-black font-mono text-slate-300 group-hover:text-amber-400 transition-colors flex justify-center italic shrink-0">
                 {member.rank}
               </div>
               <div className="flex-1 flex items-center justify-between min-w-0">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-white group-hover:translate-x-1 transition-transform truncate">{member.name}</span>
-                    {member.role === 'manager' && <span className="bg-amber-500/10 text-amber-500 text-[7px] px-1 rounded border border-amber-500/20 font-black shrink-0">관리자</span>}
-                    {member.role === 'treasurer' && <span className="bg-emerald-500/10 text-emerald-500 text-[7px] px-1 rounded border border-emerald-500/20 font-black shrink-0">총무</span>}
+                    <span className="text-[18px] font-bold text-white group-hover:translate-x-1 transition-transform truncate">{member.name}</span>
+                    {member.role === 'manager' && <span className="bg-amber-500/10 text-amber-500 text-[11px] px-1 rounded border border-amber-500/20 font-black shrink-0">관리자</span>}
+                    {member.role === 'treasurer' && <span className="bg-emerald-500/10 text-emerald-500 text-[11px] px-1 rounded border border-emerald-500/20 font-black shrink-0">총무</span>}
                   </div>
-                  <div className="text-[9px] text-slate-500 font-medium truncate leading-tight">{member.affiliation || '소속 정보 없음'}</div>
+                  <div className="text-[19px] text-slate-300 font-medium truncate leading-tight">{member.affiliation || '소속 정보 없음'}</div>
                 </div>
                 <div className="text-right shrink-0 ml-2">
-                  <div className="text-[13px] font-black text-indigo-400 font-mono tracking-tighter">{member.totalPoints.toLocaleString()} <span className="text-[9px] opacity-60">PT</span></div>
+                  <div className="text-[19px] font-black text-indigo-400 font-mono tracking-tighter">{member.totalPoints.toLocaleString()} <span className="text-[19px] opacity-60">PT</span></div>
                 </div>
               </div>
             </div>
           ))}
           {members.length === 0 && (
-            <div className="py-20 text-center text-slate-500 font-mono text-[10px] uppercase tracking-widest">
+            <div className="py-20 text-center text-slate-300 font-mono text-[15px] uppercase tracking-widest">
                랭킹 데이터가 존재하지 않습니다.
             </div>
           )}
