@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, setDoc, serverTimestamp, writeBatch, getDocs, where, updateDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { UserProfile } from '../hooks/useUserRole';
 import { CheckCircle2, Lock, Calendar, Plus, AlertCircle, Pencil, Trash2, X, Check } from 'lucide-react';
 
@@ -384,21 +384,24 @@ export default function MissionBoard({
     e.preventDefault();
     if (!submitContent.trim() && !submitImage) return;
 
+    const uid = profile.uid || auth.currentUser?.uid;
+    if (!uid) return safeAlert('로그인 정보가 없습니다. 다시 로그인해 주세요.');
+
     try {
       const batch = writeBatch(db);
-      
-      const execId = `${mission.id}_${profile.uid}`;
+
+      const execId = `${mission.id}_${uid}`;
       const execRef = doc(db, 'mission_executions', execId);
       batch.set(execRef, {
-        userId: profile.uid,
-        userName: profile.name, // denormalize for speed
+        userId: uid,
+        userName: profile.name,
         missionId: mission.id,
         content: submitContent,
         image: submitImage,
         submittedAt: serverTimestamp()
       });
 
-      const userRef = doc(db, 'users', profile.uid);
+      const userRef = doc(db, 'users', uid);
       batch.update(userRef, {
         totalPoints: profile.totalPoints + mission.points,
         lastMissionId: mission.id
