@@ -359,7 +359,6 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                         {post.authorName.slice(0, 1)}
                       </div>
                       <span className="text-[15px] font-bold text-slate-300">{post.authorName}</span>
-                      <span className="text-[13px] text-slate-300 italic font-mono truncate max-w-[100px]">({post.authorUid.slice(0, 8)})</span>
                     </div>
                     {post.title && (
                       <h4 className="text-[21px] font-black text-white tracking-tight">{post.title}</h4>
