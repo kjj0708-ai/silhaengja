@@ -389,21 +389,15 @@ export default function MeetingBoard({
                     </div>
                   ) : (
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-[14px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors">{m.title}</h4>
+                      {/* 제목 + 날짜 */}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="text-[14px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors truncate">{m.title}</h4>
                           {adminRole === 'manager' && (
-                            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                               <button onClick={() => handleStartEdit(m)} className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"><Pencil size={11} /></button>
-                              <button
-                                onClick={() => handleToggleClosed(m)}
-                                title={m.closed ? '마감 해제' : '마감하기'}
-                                className={`p-1 transition-colors ${m.closed ? 'text-rose-400 hover:text-slate-400' : 'text-slate-600 hover:text-rose-400'}`}
-                              >
-                                {m.closed ? <LockOpen size={11} /> : <Lock size={11} />}
-                              </button>
                               {confirmDeleteMtg === m.id ? (
-                                <button onClick={() => handleDeleteMeeting(m.id)} className="p-1 text-[10px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">진짜 삭제?</button>
+                                <button onClick={() => handleDeleteMeeting(m.id)} className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">삭제확인</button>
                               ) : (
                                 <button onClick={() => setConfirmDeleteMtg(m.id)} className="p-1 text-slate-600 hover:text-rose-500 transition-colors"><Trash2 size={11} /></button>
                               )}
@@ -414,6 +408,24 @@ export default function MeetingBoard({
                           <CalendarCheck size={11} className="text-slate-600" />{m.date}
                         </p>
                       </div>
+                      {/* 마감 버튼 - 항상 표시, 우측 독립 배치 */}
+                      {adminRole === 'manager' && (
+                        <button
+                          onClick={() => handleToggleClosed(m)}
+                          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95 ${
+                            m.closed
+                              ? 'bg-rose-900/30 text-rose-400 border-rose-700/50 hover:bg-rose-800/40'
+                              : isFull
+                              ? 'bg-slate-800/50 text-slate-600 border-slate-700/50 cursor-not-allowed'
+                              : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-rose-900/20 hover:text-rose-400 hover:border-rose-700/50'
+                          }`}
+                          disabled={isFull}
+                          title={m.closed ? '마감 해제하기' : '신청 마감하기'}
+                        >
+                          {m.closed ? <LockOpen size={13} /> : <Lock size={13} />}
+                          {m.closed ? '해제' : '마감'}
+                        </button>
+                      )}
                     </div>
                   )}
 
