@@ -1,4 +1,4 @@
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import * as functions from 'firebase-functions/v1';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging, MulticastMessage } from 'firebase-admin/messaging';
@@ -87,26 +87,27 @@ async function getAllTokens(): Promise<string[]> {
 // ─────────────────────────────────────────────────────────────────────
 // 1) 새 게시글 → 관리자·총무 알림
 // ─────────────────────────────────────────────────────────────────────
-export const notifyAdminOnPost = onDocumentCreated(
-  { document: 'posts/{postId}', database: DB_ID, region: REGION },
-  async (event) => {
-    const data = event.data?.data();
+export const notifyAdminOnPost = functions
+  .region(REGION)
+  .firestore.document('posts/{postId}')
+  .onCreate(async (snap) => {
+    const data = snap.data();
     if (!data) return;
 
     const tokens = await getTokensByRole('manager', 'treasurer');
     const title  = `📢 새 게시글 — ${data.authorName ?? ''}`;
     const body   = (data.title as string) || (data.content as string ?? '').slice(0, 60);
     await sendPush(tokens, title, body);
-  }
-);
+  });
 
 // ─────────────────────────────────────────────────────────────────────
 // 2) 모임 신청 → 관리자·총무 알림
 // ─────────────────────────────────────────────────────────────────────
-export const notifyAdminOnRegistration = onDocumentCreated(
-  { document: 'meeting_registrations/{regId}', database: DB_ID, region: REGION },
-  async (event) => {
-    const data = event.data?.data();
+export const notifyAdminOnRegistration = functions
+  .region(REGION)
+  .firestore.document('meeting_registrations/{regId}')
+  .onCreate(async (snap) => {
+    const data = snap.data();
     if (!data) return;
 
     const tokens = await getTokensByRole('manager', 'treasurer');
@@ -115,16 +116,16 @@ export const notifyAdminOnRegistration = onDocumentCreated(
       `🍽️ 모임 신청 — ${data.userName ?? ''}`,
       '새 모임 참여 신청이 접수되었습니다.'
     );
-  }
-);
+  });
 
 // ─────────────────────────────────────────────────────────────────────
 // 3) 새 모임 등록 → 전체 회원 알림
 // ─────────────────────────────────────────────────────────────────────
-export const notifyAllOnMeeting = onDocumentCreated(
-  { document: 'meetings/{meetingId}', database: DB_ID, region: REGION },
-  async (event) => {
-    const data = event.data?.data();
+export const notifyAllOnMeeting = functions
+  .region(REGION)
+  .firestore.document('meetings/{meetingId}')
+  .onCreate(async (snap) => {
+    const data = snap.data();
     if (!data) return;
 
     const tokens = await getAllTokens();
@@ -133,5 +134,4 @@ export const notifyAllOnMeeting = onDocumentCreated(
       `🗓️ 새 모임 공지 — ${data.title ?? ''}`,
       `일시: ${data.date ?? ''}`
     );
-  }
-);
+  });

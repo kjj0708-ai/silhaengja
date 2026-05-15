@@ -4,8 +4,7 @@ import { getFirestore, doc, getDocFromServer, updateDoc } from 'firebase/firesto
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import firebaseConfig from '../firebase-applet-config.json';
 
-// ⚠️ Firebase Console → 프로젝트 설정 → 클라우드 메시징 → 웹 푸시 인증서 → 키 쌍 복사
-const VAPID_KEY = 'REPLACE_WITH_YOUR_VAPID_KEY';
+const VAPID_KEY = 'BK_ZRP5ww_NanPydx37qc7Oqgdp1Y5sJvO4s4GLr3CCBeWR3yDq8Yy6WfrjRX65DWkx5MIHlh-XVywKNViMyPVs';
 
 const app = initializeApp(firebaseConfig);
 
