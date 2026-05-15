@@ -61,7 +61,7 @@ export default function ProfileSettings({ isOpen, onClose, profile, onUpdate }: 
         <div className="p-8 space-y-6">
           <div className="space-y-4">
              <div>
-                <label className="block text-[15px] font-bold text-slate-200 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-2">
+                <label className="block text-[13px] font-bold text-slate-200 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-2">
                    <UserIcon size={10} className="text-indigo-400" />
                    사용자 성명
                 </label>
@@ -69,13 +69,13 @@ export default function ProfileSettings({ isOpen, onClose, profile, onUpdate }: 
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-3 px-4 text-white text-[19px] outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-3 px-4 text-white text-[17px] outline-none focus:border-indigo-500 transition-colors"
                   placeholder="성명을 입력하세요"
                 />
              </div>
 
              <div>
-                <label className="block text-[15px] font-bold text-slate-200 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-2">
+                <label className="block text-[13px] font-bold text-slate-200 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-2">
                    <Building2 size={10} className="text-indigo-400" />
                    소속 업데이트
                 </label>
@@ -83,7 +83,7 @@ export default function ProfileSettings({ isOpen, onClose, profile, onUpdate }: 
                   type="text"
                   value={affiliation}
                   onChange={(e) => setAffiliation(e.target.value)}
-                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-3 px-4 text-white text-[19px] outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-3 px-4 text-white text-[17px] outline-none focus:border-indigo-500 transition-colors"
                   placeholder="새로운 소속을 입력하세요"
                 />
              </div>
@@ -93,14 +93,14 @@ export default function ProfileSettings({ isOpen, onClose, profile, onUpdate }: 
              <div className="flex gap-3">
                 <button 
                     onClick={onClose}
-                    className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[16px] font-bold rounded-lg transition-all uppercase tracking-widest"
+                    className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[15px] font-bold rounded-lg transition-all uppercase tracking-widest"
                 >
                     취소
                 </button>
                 <button 
                     onClick={handleSave}
                     disabled={isSaving || !name.trim() || !affiliation.trim() || (name === profile.name && affiliation === profile.affiliation)}
-                    className="flex-[2] px-4 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white text-[16px] font-bold rounded-lg transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="flex-[2] px-4 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white text-[15px] font-bold rounded-lg transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                     {isSaving ? (
                         <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -112,7 +112,7 @@ export default function ProfileSettings({ isOpen, onClose, profile, onUpdate }: 
              <div className="pt-4 border-t border-slate-800/50">
                 <button 
                     onClick={handleLogout}
-                    className="w-full px-4 py-3 bg-red-900/10 hover:bg-red-900/20 border border-red-900/30 text-red-400 text-[16px] font-bold rounded-lg transition-all uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="w-full px-4 py-3 bg-red-900/10 hover:bg-red-900/20 border border-red-900/30 text-red-400 text-[15px] font-bold rounded-lg transition-all uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                     <LogOut size={14} />
                     로그아웃

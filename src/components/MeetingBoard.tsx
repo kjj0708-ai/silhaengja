@@ -53,6 +53,27 @@ export default function MeetingBoard({
     try { window.alert(msg); } catch (e) { console.log(msg); }
   };
 
+  // Auto-close: meetings within 1 hour of start and not full → closed=true in Firestore
+  useEffect(() => {
+    const checkAutoClose = async () => {
+      const now = new Date();
+      for (const m of meetings) {
+        if (m.closed || m.attendeesCount >= m.maxAttendees) continue;
+        const meetingTime = new Date(m.date.replace(' ', 'T'));
+        if (isNaN(meetingTime.getTime())) continue;
+        const diffMs = meetingTime.getTime() - now.getTime();
+        if (diffMs <= 60 * 60 * 1000) {
+          try {
+            await updateDoc(doc(db, 'meetings', m.id), { closed: true });
+          } catch (e) { console.error('Auto-close failed:', e); }
+        }
+      }
+    };
+    checkAutoClose();
+    const interval = setInterval(checkAutoClose, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [meetings]);
+
   useEffect(() => {
     // 1. Listen to meetings
     const mq = collection(db, 'meetings');
@@ -282,18 +303,18 @@ export default function MeetingBoard({
       {adminRole === 'manager' && (
         <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-800 shadow-xl overflow-hidden relative group">
           <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-          <h3 className="text-[16px] font-bold text-slate-200 uppercase tracking-widest mb-3 flex items-center gap-2">
+          <h3 className="text-[15px] font-bold text-slate-200 uppercase tracking-widest mb-3 flex items-center gap-2">
             <CalendarCheck size={14} className="text-indigo-400" /> 신규 모임 일정 생성
           </h3>
           <form onSubmit={handleCreateMeeting} className="flex flex-col gap-2.5">
             <div>
-              <label className="block text-[15px] text-slate-300 font-bold uppercase tracking-wider mb-1">식별자 (제목)</label>
+              <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">식별자 (제목)</label>
               <input type="text" required value={newTitle} onChange={v => setNewTitle(v.target.value)}
                 className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-medium" placeholder="예: 첫 번째 세션" />
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="block text-[15px] text-slate-300 font-bold uppercase tracking-wider mb-1">날짜</label>
+                <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">날짜</label>
                 <div className="relative cursor-pointer" onClick={e => {
                   const input = e.currentTarget.querySelector('input');
                   if (input) try { input.showPicker(); } catch {}
@@ -304,18 +325,18 @@ export default function MeetingBoard({
                 </div>
               </div>
               <div className="w-24">
-                <label className="block text-[15px] text-slate-300 font-bold uppercase tracking-wider mb-1">시간</label>
+                <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">시간</label>
                 <input type="time" required value={newTime} onChange={v => setNewTime(v.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-mono [color-scheme:dark] cursor-pointer" onClick={e => { try { (e.target as HTMLInputElement).showPicker(); } catch {} }} />
               </div>
             </div>
             <div className="flex gap-2 items-end">
               <div className="w-24">
-                <label className="block text-[15px] text-slate-300 font-bold uppercase tracking-wider mb-1">정원</label>
+                <label className="block text-[13px] text-slate-300 font-bold uppercase tracking-wider mb-1">정원</label>
                 <input type="number" required min="1" value={newMax} onChange={v => setNewMax(Number(v.target.value))}
                   className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-indigo-500 font-mono" />
               </div>
-              <button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[16px] font-bold py-2 rounded-lg uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+              <button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[15px] font-bold py-2 rounded-lg uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                 생성하기
               </button>
             </div>
@@ -326,15 +347,15 @@ export default function MeetingBoard({
       {/* Meeting List */}
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-           <h3 className="text-[18px] font-bold text-white uppercase tracking-widest flex items-center gap-2">
+           <h3 className="text-[16px] font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-indigo-500"></span> 활성 오프라인 모임 명부
            </h3>
            <div className="flex items-center gap-3">
-             <span className="text-[15px] font-mono text-slate-300">{meetings.length}개의 노드 발견됨</span>
+             <span className="text-[13px] font-mono text-slate-300">{meetings.length}개의 노드 발견됨</span>
              <button
                onClick={toggle}
                title={notifEnabled ? '알림 끄기' : (permission === 'denied' ? '브라우저 알림이 차단됨' : '알림 켜기')}
-               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[15px] font-bold uppercase tracking-wider transition-all border ${
+               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all border ${
                  notifEnabled
                    ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-600/30'
                    : permission === 'denied'
@@ -358,17 +379,17 @@ export default function MeetingBoard({
             return (
               <div key={m.id} className={`group bg-[#1e293b] rounded-xl border ${isRegistered ? 'border-indigo-500/50 ring-1 ring-indigo-500/20' : 'border-slate-800'} shadow-xl flex flex-col relative overflow-hidden transition-all hover:border-slate-700`}>
                 {m.closed && !isFull && (
-                  <div className="absolute top-0 left-0 bg-rose-700 text-white text-[19px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter flex items-center gap-1">
+                  <div className="absolute top-0 left-0 bg-rose-700 text-white text-[17px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter flex items-center gap-1">
                     <Lock size={9} /> 마감됨
                   </div>
                 )}
                 {isFull && (
-                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[19px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
+                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[17px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
                     정원마감
                   </div>
                 )}
                 {isRegistered && (
-                   <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[19px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
+                   <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[17px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
                      참여 확정됨
                    </div>
                 )}
@@ -376,11 +397,11 @@ export default function MeetingBoard({
                 <div className="p-4 flex flex-col gap-3">
                   {editingMeetingId === m.id ? (
                     <div className="flex flex-col gap-2 p-3 bg-[#0f172a] rounded-lg border border-slate-800 animate-in zoom-in duration-200">
-                       <input type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} className="bg-transparent text-[21px] font-bold p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-white w-full" />
+                       <input type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} className="bg-transparent text-[19px] font-bold p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-white w-full" />
                        <div className="flex gap-2">
-                         <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="bg-transparent text-[16px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 flex-1 font-mono" />
-                         <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} className="bg-transparent text-[16px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 w-24 font-mono" />
-                         <input type="number" value={editMax} onChange={e => setEditMax(Number(e.target.value))} className="bg-transparent text-[16px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 w-16 font-mono" />
+                         <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="bg-transparent text-[15px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 flex-1 font-mono" />
+                         <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} className="bg-transparent text-[15px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 w-24 font-mono" />
+                         <input type="number" value={editMax} onChange={e => setEditMax(Number(e.target.value))} className="bg-transparent text-[15px] p-2 border-b border-slate-700 outline-none focus:border-indigo-500 text-slate-200 w-16 font-mono" />
                        </div>
                        <div className="flex justify-end gap-2">
                           <button onClick={() => setEditingMeetingId(null)} className="p-1.5 text-slate-300 hover:text-slate-300 transition-colors"><X size={15}/></button>
@@ -392,39 +413,43 @@ export default function MeetingBoard({
                       {/* 제목 + 날짜 */}
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-[21px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors truncate">{m.title}</h4>
+                          <h4 className="text-[19px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors truncate">{m.title}</h4>
                           {adminRole === 'manager' && (
                             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                               <button onClick={() => handleStartEdit(m)} className="p-1 text-slate-300 hover:text-indigo-400 transition-colors"><Pencil size={11} /></button>
                               {confirmDeleteMtg === m.id ? (
-                                <button onClick={() => handleDeleteMeeting(m.id)} className="px-1.5 py-0.5 text-[19px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">삭제확인</button>
+                                <button onClick={() => handleDeleteMeeting(m.id)} className="px-1.5 py-0.5 text-[17px] font-bold text-white bg-rose-600 rounded whitespace-nowrap">삭제확인</button>
                               ) : (
                                 <button onClick={() => setConfirmDeleteMtg(m.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors"><Trash2 size={11} /></button>
                               )}
                             </div>
                           )}
                         </div>
-                        <p className="text-[15px] text-slate-300 font-mono flex items-center gap-1 mt-0.5">
+                        <p className="text-[13px] text-slate-300 font-mono flex items-center gap-1 mt-0.5">
                           <CalendarCheck size={11} className="text-slate-300" />{m.date}
                         </p>
                       </div>
-                      {/* 마감 버튼 - 항상 표시, 우측 독립 배치 */}
-                      {adminRole === 'manager' && (
-                        <button
-                          onClick={() => handleToggleClosed(m)}
-                          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[16px] font-bold border transition-all active:scale-95 ${
-                            m.closed
-                              ? 'bg-rose-900/30 text-rose-400 border-rose-700/50 hover:bg-rose-800/40'
-                              : isFull
-                              ? 'bg-slate-800/50 text-slate-300 border-slate-700/50 cursor-not-allowed'
-                              : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-rose-900/20 hover:text-rose-400 hover:border-rose-700/50'
-                          }`}
-                          disabled={isFull}
-                          title={m.closed ? '마감 해제하기' : '신청 마감하기'}
-                        >
-                          {m.closed ? <LockOpen size={13} /> : <Lock size={13} />}
-                          {m.closed ? '해제' : '마감'}
-                        </button>
+                      {/* 마감 버튼 / 마감 표시 박스 */}
+                      {adminRole === 'manager' && !isFull && (
+                        m.closed ? (
+                          /* 수동 마감 상태: 빨간 마감 박스 (클릭 시 해제) */
+                          <button
+                            onClick={() => handleToggleClosed(m)}
+                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-black border bg-rose-600 text-white border-rose-500 hover:bg-rose-700 active:scale-95 transition-all shadow-lg shadow-rose-900/40"
+                            title="마감 해제하기"
+                          >
+                            <Lock size={12} fill="currentColor" /> 마감
+                          </button>
+                        ) : (
+                          /* 미마감 상태: 마감 버튼 */
+                          <button
+                            onClick={() => handleToggleClosed(m)}
+                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-bold border bg-slate-800 text-slate-200 border-slate-700 hover:bg-rose-900/20 hover:text-rose-400 hover:border-rose-700/50 active:scale-95 transition-all"
+                            title="신청 마감하기"
+                          >
+                            <Lock size={12} /> 마감
+                          </button>
+                        )
                       )}
                     </div>
                   )}
@@ -433,8 +458,8 @@ export default function MeetingBoard({
                     <div className="flex-1 bg-[#0f172a] h-1.5 rounded-full overflow-hidden border border-slate-800">
                       <div className={`h-full transition-all duration-700 ${isFull ? 'bg-amber-500' : 'bg-indigo-500'}`} style={{ width: `${(m.attendeesCount / m.maxAttendees) * 100}%` }}></div>
                     </div>
-                    <span className="text-[15px] font-mono font-black text-slate-200 whitespace-nowrap">
-                      {m.attendeesCount} / {m.maxAttendees} <span className="opacity-40 text-[19px]">명</span>
+                    <span className="text-[13px] font-mono font-black text-slate-200 whitespace-nowrap">
+                      {m.attendeesCount} / {m.maxAttendees} <span className="opacity-40 text-[17px]">명</span>
                     </span>
                   </div>
 
@@ -442,7 +467,7 @@ export default function MeetingBoard({
                     <button
                       onClick={() => handleRegister(m)}
                       disabled={isClosed}
-                      className={`w-full text-[16px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
+                      className={`w-full text-[15px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
                         isClosed ? 'bg-slate-800 text-slate-300 cursor-not-allowed border border-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'
                       }`}
                     >
@@ -450,13 +475,13 @@ export default function MeetingBoard({
                     </button>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center justify-center gap-1.5 text-[15px] font-black text-emerald-400 bg-emerald-900/20 px-3 py-2 rounded-lg border border-emerald-500/30 uppercase tracking-tighter">
+                      <div className="flex items-center justify-center gap-1.5 text-[13px] font-black text-emerald-400 bg-emerald-900/20 px-3 py-2 rounded-lg border border-emerald-500/30 uppercase tracking-tighter">
                         <Check size={13} strokeWidth={3} /> 참여 중
                       </div>
                       {confirmDeleteReg === m.id ? (
-                        <button onClick={() => handleCancel(m)} className="text-[15px] font-black text-white bg-rose-600 px-3 py-2 rounded-lg transition-all border border-rose-500 uppercase tracking-tighter">정말 취소?</button>
+                        <button onClick={() => handleCancel(m)} className="text-[13px] font-black text-white bg-rose-600 px-3 py-2 rounded-lg transition-all border border-rose-500 uppercase tracking-tighter">정말 취소?</button>
                       ) : (
-                        <button onClick={() => setConfirmDeleteReg(m.id)} className="text-[15px] font-black text-slate-200 hover:text-white hover:bg-rose-900/30 px-3 py-2 rounded-lg transition-all border border-slate-700 hover:border-rose-500/50 uppercase tracking-tighter">참여 취소</button>
+                        <button onClick={() => setConfirmDeleteReg(m.id)} className="text-[13px] font-black text-slate-200 hover:text-white hover:bg-rose-900/30 px-3 py-2 rounded-lg transition-all border border-slate-700 hover:border-rose-500/50 uppercase tracking-tighter">참여 취소</button>
                       )}
                     </div>
                   )}
@@ -466,7 +491,7 @@ export default function MeetingBoard({
                   <div className="px-4 py-2.5 bg-slate-900/50 border-t border-slate-800/50">
                     <div className="flex flex-wrap gap-1">
                       {attendees.map((reg) => (
-                        <span key={reg.id} className="text-[15px] font-bold bg-[#1e293b] border border-slate-800 text-slate-200 px-2 py-0.5 rounded hover:text-white hover:border-slate-600 transition-colors">
+                        <span key={reg.id} className="text-[13px] font-bold bg-[#1e293b] border border-slate-800 text-slate-200 px-2 py-0.5 rounded hover:text-white hover:border-slate-600 transition-colors">
                           {reg.userName}
                         </span>
                       ))}

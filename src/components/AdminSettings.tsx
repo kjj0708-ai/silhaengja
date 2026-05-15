@@ -199,8 +199,8 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
               <Settings size={16} />
             </div>
             <div className="shrink-0">
-              <h2 className="text-[19px] font-black text-white tracking-tighter uppercase leading-none">회원관리</h2>
-              <p className="text-[19px] text-slate-300 font-mono">전체 {members.length}명</p>
+              <h2 className="text-[17px] font-black text-white tracking-tighter uppercase leading-none">회원관리</h2>
+              <p className="text-[17px] text-slate-300 font-mono">전체 {members.length}명</p>
             </div>
             <div className="flex-1 relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300" size={13} />
@@ -209,7 +209,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                 placeholder="이름 또는 소속 검색..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-1.5 pl-8 pr-3 text-[18px] text-white outline-none focus:border-indigo-500 transition-all"
+                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg py-1.5 pl-8 pr-3 text-[16px] text-white outline-none focus:border-indigo-500 transition-all"
               />
             </div>
             <button onClick={onClose} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-300 hover:text-white transition-all shrink-0">
@@ -230,28 +230,28 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                   <div className="min-w-0 flex-1">
                     {editingAffiliation === member.uid ? (
                       <div className="flex items-center gap-1">
-                        <span className="text-[16px] font-bold text-white shrink-0">{member.name}</span>
+                        <span className="text-[15px] font-bold text-white shrink-0">{member.name}</span>
                         <input
                           autoFocus
                           type="text"
                           value={affiliationInput}
                           onChange={e => setAffiliationInput(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') handleSaveAffiliation(member); if (e.key === 'Escape') setEditingAffiliation(null); }}
-                          className="bg-[#0f172a] border border-indigo-500 rounded px-1.5 py-0.5 text-[15px] text-white outline-none flex-1 min-w-0"
+                          className="bg-[#0f172a] border border-indigo-500 rounded px-1.5 py-0.5 text-[13px] text-white outline-none flex-1 min-w-0"
                         />
                         <button onClick={() => handleSaveAffiliation(member)} disabled={!!processing} className="text-emerald-400 hover:text-emerald-300 disabled:opacity-30 shrink-0"><Check size={12} /></button>
                         <button onClick={() => setEditingAffiliation(null)} className="text-slate-300 hover:text-white shrink-0"><X size={12} /></button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[16px] font-bold text-white shrink-0">{member.name}</span>
+                        <span className="text-[15px] font-bold text-white shrink-0">{member.name}</span>
                         {member.role && (
                           <span className={`${member.role === 'manager' ? 'text-amber-500' : 'text-emerald-400'} text-[11px] font-black shrink-0`}>
                             [{member.role === 'manager' ? '관리자' : '총무'}]
                           </span>
                         )}
-                        <span className="text-slate-300 text-[15px] shrink-0">·</span>
-                        <span className="text-[15px] text-slate-300 truncate">{member.affiliation || '—'}</span>
+                        <span className="text-slate-300 text-[13px] shrink-0">·</span>
+                        <span className="text-[13px] text-slate-300 truncate">{member.affiliation || '—'}</span>
                         {adminRole === 'manager' && (
                           <button onClick={() => startEditAffiliation(member)} className="text-slate-700 hover:text-indigo-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100">
                             <Pencil size={9} />
@@ -263,7 +263,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
 
                   {/* PT + 버튼들 */}
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[15px] text-indigo-400/80 font-mono font-bold">{member.totalPoints.toLocaleString()}<span className="text-[12px] opacity-50">pt</span></span>
+                    <span className="text-[13px] text-indigo-400/80 font-mono font-bold">{member.totalPoints.toLocaleString()}<span className="text-[12px] opacity-50">pt</span></span>
 
                     {adminRole === 'manager' && (
                       <div className="flex items-center bg-[#0f172a] border border-slate-700 rounded h-6 relative group/btn">
@@ -272,7 +272,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                           value={memberPoints[member.uid] || ''}
                           placeholder="0"
                           onChange={e => onPointInputChange(member.uid, e.target.value)}
-                          className="w-10 bg-transparent text-center text-[15px] text-white outline-none font-mono"
+                          className="w-10 bg-transparent text-center text-[13px] text-white outline-none font-mono"
                         />
                         <button
                           onClick={() => handleAddPoints(member)}
@@ -281,7 +281,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                         >
                           <Coins size={11} />
                         </button>
-                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[19px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">점수추가</span>
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[17px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">점수추가</span>
                       </div>
                     )}
 
@@ -292,7 +292,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                         className={`p-1 h-6 w-6 flex items-center justify-center rounded transition-all relative group/btn ${member.role === 'treasurer' ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/20' : member.role === 'manager' ? 'bg-amber-600/20 text-amber-500 border-amber-500/20 cursor-default' : 'text-slate-300 bg-slate-800 border border-slate-700 hover:text-white'} disabled:opacity-30`}
                       >
                         {member.role === 'manager' ? <Shield size={12} className="text-amber-500" fill="currentColor" /> : member.role === 'treasurer' ? <UserMinus size={12} /> : <UserPlus size={12} />}
-                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[19px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">총무권한</span>
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[17px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">총무권한</span>
                       </button>
                     )}
 
@@ -303,7 +303,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
                         className="p-1 h-6 w-6 flex items-center justify-center rounded bg-red-900/20 text-red-500 hover:bg-red-600/30 border border-red-900/30 transition-all relative group/btn disabled:opacity-30"
                       >
                         <Trash2 size={11} />
-                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[19px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">삭제</span>
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-[17px] text-white px-1.5 py-1 rounded border border-slate-700 opacity-0 group-hover/btn:opacity-100 whitespace-nowrap pointer-events-none z-10">삭제</span>
                       </button>
                     )}
                   </div>
@@ -314,7 +314,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
 
           {/* Status Bar */}
           <div className="px-3 py-2 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-[19px] text-slate-300 font-mono">
+            <div className="flex items-center gap-1.5 text-[17px] text-slate-300 font-mono">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
               {adminRole === 'manager' ? '마스터 관리자' : '지정 총무'} · 검색결과 {filteredMembers.length}명
             </div>
@@ -322,7 +322,7 @@ export default function AdminSettings({ isOpen, onClose, adminRole }: AdminSetti
               <button
                 onClick={handleResetAllPoints}
                 disabled={!!processing}
-                className="flex items-center gap-1 px-2.5 py-1 bg-rose-900/30 hover:bg-rose-800/50 border border-rose-700/40 text-rose-400 hover:text-rose-300 rounded text-[19px] font-bold uppercase tracking-wider transition-all disabled:opacity-40 shrink-0"
+                className="flex items-center gap-1 px-2.5 py-1 bg-rose-900/30 hover:bg-rose-800/50 border border-rose-700/40 text-rose-400 hover:text-rose-300 rounded text-[17px] font-bold uppercase tracking-wider transition-all disabled:opacity-40 shrink-0"
               >
                 ⚠ 포인트 전체 초기화
               </button>
