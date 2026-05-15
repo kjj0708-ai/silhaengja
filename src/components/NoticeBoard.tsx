@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, addDoc, deleteDoc, serverTimestamp, query, orderBy, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { Megaphone, Plus, Trash2, Pin, MessageSquare, Image as ImageIcon, Link as LinkIcon, X, Check, Pencil } from 'lucide-react';
+import { Megaphone, Plus, Trash2, Pin, MessageSquare, Image as ImageIcon, X, Check, Pencil, ChevronDown, ChevronUp, CornerDownRight, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { UserProfile } from '../hooks/useUserRole';
 
@@ -18,9 +18,20 @@ interface Post {
   updatedAt?: any;
 }
 
+interface Comment {
+  id: string;
+  postId: string;
+  parentId: string | null;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  createdAt: any;
+}
+
 export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manager' | 'treasurer' | null, profile: UserProfile }) {
   const [activeCategory, setActiveCategory] = useState<'notice' | 'free'>('notice');
   const [posts, setPosts] = useState<Post[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isImportant, setIsImportant] = useState(false);
@@ -30,6 +41,13 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+
+  // Comment state
+  const [openComments, setOpenComments] = useState<Set<string>>(new Set());
+  const [commentInputs, setCommentInputs] = useState<{[postId: string]: string}>({});
+  const [replyingTo, setReplyingTo] = useState<string | null>(null); // comment ID
+  const [replyInputs, setReplyInputs] = useState<{[commentId: string]: string}>({});
+  const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState<string | null>(null);
 
   const safeAlert = (msg: string) => {
     try { window.alert(msg); } catch (e) { console.log(msg); }
@@ -46,7 +64,17 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
       console.warn("Board access error:", err.code);
       setLoading(false);
     });
-    return () => unsub();
+
+    const cq = query(collection(db, 'post_comments'), orderBy('createdAt', 'asc'));
+    const cUnsub = onSnapshot(cq, (snap) => {
+      const list: Comment[] = [];
+      snap.forEach(d => list.push({ id: d.id, ...d.data() } as Comment));
+      setComments(list);
+    }, (err: any) => {
+      console.warn("Comments access error:", err.code);
+    });
+
+    return () => { unsub(); cUnsub(); };
   }, []);
 
   const resizeImage = (file: File): Promise<string> => {
@@ -58,43 +86,21 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          
-          // Target roughly 300KB. 
-          // Base64 overhead is ~33%. 300KB binary -> ~400KB base64.
           const TARGET_BASE64_LENGTH = 400000;
-          const MAX_SIZE = 1200; 
-          
+          const MAX_SIZE = 1200;
           if (width > height) {
-            if (width > MAX_SIZE) {
-              height *= MAX_SIZE / width;
-              width = MAX_SIZE;
-            }
+            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
           } else {
-            if (height > MAX_SIZE) {
-              width *= MAX_SIZE / height;
-              height = MAX_SIZE;
-            }
+            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
           }
-          
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
-          
-          // Quality tuning loop
           let quality = 0.8;
           let dataUrl = canvas.toDataURL('image/jpeg', quality);
-          
-          // If still too large, step down quality aggressively
-          if (dataUrl.length > TARGET_BASE64_LENGTH) {
-            quality = 0.5;
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-          }
-          if (dataUrl.length > TARGET_BASE64_LENGTH) {
-            quality = 0.2;
-            dataUrl = canvas.toDataURL('image/jpeg', quality);
-          }
-          
+          if (dataUrl.length > TARGET_BASE64_LENGTH) { quality = 0.5; dataUrl = canvas.toDataURL('image/jpeg', quality); }
+          if (dataUrl.length > TARGET_BASE64_LENGTH) { quality = 0.2; dataUrl = canvas.toDataURL('image/jpeg', quality); }
           resolve(dataUrl);
         };
         img.src = e.target?.result as string;
@@ -106,15 +112,12 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
-    // Check if file is already small enough (300KB = 307200 bytes)
     if (file.size <= 307200) {
       const reader = new FileReader();
       reader.onload = (e) => setImage(e.target?.result as string);
       reader.readAsDataURL(file);
       return;
     }
-
     setIsResizing(true);
     try {
       const resized = await resizeImage(file);
@@ -130,9 +133,7 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
     e.preventDefault();
     if (!content.trim()) return;
     if (activeCategory === 'notice' && !title.trim()) return;
-    
     try {
-      console.log("Attempting to create post with profile:", profile);
       const payload: any = {
         content: content.trim(),
         category: activeCategory,
@@ -142,23 +143,12 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
         title: activeCategory === 'notice' ? title.trim() : '',
         isImportant: activeCategory === 'notice' ? isImportant : false
       };
-
-      if (!payload.authorUid) {
-        throw new Error("사용자 인증 정보가 없습니다. 다시 로그인해 주세요.");
-      }
-
-      if (image) {
-        payload.image = image;
-      }
-
+      if (!payload.authorUid) throw new Error("사용자 인증 정보가 없습니다. 다시 로그인해 주세요.");
+      if (image) payload.image = image;
       await addDoc(collection(db, 'posts'), payload);
-      setTitle('');
-      setContent('');
-      setIsImportant(false);
-      setImage(null);
+      setTitle(''); setContent(''); setIsImportant(false); setImage(null);
       safeAlert('게시글 등록 성공!');
     } catch (err: any) {
-      console.error("Create Post Error:", err);
       safeAlert('등록 실패: ' + (err.message || '알 수 없는 오류'));
     }
   };
@@ -168,7 +158,6 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
       await deleteDoc(doc(db, 'posts', id));
       setConfirmDeleteId(null);
     } catch (e) {
-      console.error(e);
       safeAlert('삭제 실패');
     }
   };
@@ -180,14 +169,66 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
 
   const handleSaveEdit = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'posts', id), {
-        content: editContent,
-        updatedAt: serverTimestamp()
-      });
+      await updateDoc(doc(db, 'posts', id), { content: editContent, updatedAt: serverTimestamp() });
       setEditingPostId(null);
     } catch (e) {
-      console.error(e);
       safeAlert('수정 실패');
+    }
+  };
+
+  // Comment handlers
+  const toggleComments = (postId: string) => {
+    setOpenComments(prev => {
+      const next = new Set(prev);
+      if (next.has(postId)) next.delete(postId);
+      else next.add(postId);
+      return next;
+    });
+  };
+
+  const handleAddComment = async (postId: string) => {
+    const text = (commentInputs[postId] || '').trim();
+    if (!text) return;
+    try {
+      await addDoc(collection(db, 'post_comments'), {
+        postId,
+        parentId: null,
+        content: text,
+        authorUid: profile.uid,
+        authorName: profile.name,
+        createdAt: serverTimestamp()
+      });
+      setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    } catch (err: any) {
+      safeAlert('댓글 등록 실패: ' + err.message);
+    }
+  };
+
+  const handleAddReply = async (postId: string, parentId: string) => {
+    const text = (replyInputs[parentId] || '').trim();
+    if (!text) return;
+    try {
+      await addDoc(collection(db, 'post_comments'), {
+        postId,
+        parentId,
+        content: text,
+        authorUid: profile.uid,
+        authorName: profile.name,
+        createdAt: serverTimestamp()
+      });
+      setReplyInputs(prev => ({ ...prev, [parentId]: '' }));
+      setReplyingTo(null);
+    } catch (err: any) {
+      safeAlert('답글 등록 실패: ' + err.message);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteDoc(doc(db, 'post_comments', commentId));
+      setConfirmDeleteCommentId(null);
+    } catch (e) {
+      safeAlert('삭제 실패');
     }
   };
 
@@ -220,13 +261,13 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
     <div className="flex flex-col gap-6 w-full animate-in fade-in duration-500 max-w-4xl mx-auto">
       {/* Category Tabs */}
       <div className="flex bg-[#1e293b] p-1 rounded-xl border border-slate-800 shadow-xl self-start">
-        <button 
+        <button
           onClick={() => { setActiveCategory('notice'); setImage(null); }}
           className={`px-6 py-2 rounded-lg text-[15px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'notice' ? 'bg-[#0f172a] text-indigo-400 shadow-2xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
         >
           <Megaphone size={14} /> 공지사항
         </button>
-        <button 
+        <button
           onClick={() => { setActiveCategory('free'); setImage(null); }}
           className={`px-6 py-2 rounded-lg text-[15px] font-black transition-all uppercase tracking-widest flex items-center gap-2 ${activeCategory === 'free' ? 'bg-[#0f172a] text-emerald-400 shadow-2xl border border-slate-700' : 'text-slate-300 hover:text-slate-300'}`}
         >
@@ -234,17 +275,18 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
         </button>
       </div>
 
-      {/* Post Creation (Restricted for notices, free for everyone) */}
+      {/* Post Creation */}
       {(activeCategory === 'free' || (activeCategory === 'notice' && adminRole === 'manager')) && (
         <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-2xl">
           <h3 className="text-[15px] font-bold mb-4 flex items-center gap-2 text-slate-200 uppercase tracking-widest">
-            <Plus size={14} className={activeCategory === 'notice' ? 'text-indigo-500' : 'text-emerald-500'} /> {activeCategory === 'notice' ? '신규 공지 등록' : '새로운 게시글 작성'}
+            <Plus size={14} className={activeCategory === 'notice' ? 'text-indigo-500' : 'text-emerald-500'} />
+            {activeCategory === 'notice' ? '신규 공지 등록' : '새로운 게시글 작성'}
           </h3>
           <form onSubmit={handleCreate} className="flex flex-col gap-4">
             {activeCategory === 'notice' && (
-              <input 
-                type="text" 
-                value={title} 
+              <input
+                type="text"
+                value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="제목"
                 className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-bold"
@@ -252,8 +294,8 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
               />
             )}
             <div className="relative">
-              <textarea 
-                value={content} 
+              <textarea
+                value={content}
                 onChange={e => setContent(e.target.value)}
                 placeholder={activeCategory === 'notice' ? "내용을 입력하세요..." : "자유롭게 이야기를 나누세요 (링크 지원)"}
                 rows={4}
@@ -267,33 +309,22 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
                 </label>
               </div>
             </div>
-
             {image && (
               <div className="relative w-32 h-32 rounded-lg border border-slate-700 overflow-hidden group">
                 <img src={image} className="w-full h-full object-cover" alt="preview" />
-                <button 
-                  type="button" 
-                  onClick={() => setImage(null)}
-                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
+                <button type="button" onClick={() => setImage(null)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <X size={12} />
                 </button>
               </div>
             )}
-
             <div className="flex items-center justify-between">
               {activeCategory === 'notice' ? (
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={isImportant} 
-                    onChange={e => setIsImportant(e.target.checked)}
-                    className="rounded border-slate-700 bg-[#0f172a] text-indigo-600 focus:ring-indigo-500 h-4 w-4" 
-                  />
+                  <input type="checkbox" checked={isImportant} onChange={e => setIsImportant(e.target.checked)} className="rounded border-slate-700 bg-[#0f172a] text-indigo-600 focus:ring-indigo-500 h-4 w-4" />
                   <span className="text-[15px] text-slate-200 font-bold uppercase tracking-wide">중요 고정</span>
                 </label>
               ) : <div></div>}
-              <button 
+              <button
                 type="submit"
                 disabled={isResizing}
                 className={`${activeCategory === 'notice' ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white text-[15px] font-black px-10 py-3 rounded-xl transition-all uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50`}
@@ -307,84 +338,216 @@ export default function NoticeBoard({ adminRole, profile }: { adminRole: 'manage
 
       {/* Posts Feed */}
       <div className="flex flex-col gap-4">
-        {filteredPosts.map(post => (
-          <div key={post.id} className={`bg-[#1e293b] p-6 rounded-2xl border ${post.isImportant ? 'border-indigo-500/50 bg-indigo-900/10' : 'border-slate-800'} shadow-lg relative group transition-all hover:border-slate-700`}>
-            {post.isImportant && (
-              <div className="absolute top-4 right-4 text-indigo-400">
-                <Pin size={14} fill="currentColor" />
-              </div>
-            )}
-            
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[13px] font-black text-indigo-400">
-                    {post.authorName.slice(0, 1)}
-                  </div>
-                  <span className="text-[15px] font-bold text-slate-300">{post.authorName}</span>
-                  <span className="text-[13px] text-slate-300 italic font-mono truncate max-w-[100px]">({post.authorUid.slice(0, 8)})</span>
+        {filteredPosts.map(post => {
+          const postComments = comments.filter(c => c.postId === post.id && !c.parentId);
+          const totalCount = comments.filter(c => c.postId === post.id).length;
+          const isOpen = openComments.has(post.id);
+
+          return (
+            <div key={post.id} className={`bg-[#1e293b] rounded-2xl border ${post.isImportant ? 'border-indigo-500/50 bg-indigo-900/10' : 'border-slate-800'} shadow-lg relative group transition-all hover:border-slate-700 overflow-hidden`}>
+              {post.isImportant && (
+                <div className="absolute top-4 right-4 text-indigo-400">
+                  <Pin size={14} fill="currentColor" />
                 </div>
-                {post.title && (
-                  <h4 className="text-[21px] font-black text-white tracking-tight">
-                    {post.title}
-                  </h4>
-                )}
-              </div>
-              
-              {(adminRole === 'manager' || post.authorUid === profile.uid) && (
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleStartEdit(post)} className="text-slate-300 hover:text-amber-500 transition-colors p-1">
-                    <Pencil size={14} />
-                  </button>
-                  {confirmDeleteId === post.id ? (
-                    <button onClick={() => handleDelete(post.id)} className="text-[13px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded transition-colors">
-                      삭제 확정
-                    </button>
-                  ) : (
-                    <button onClick={() => setConfirmDeleteId(post.id)} className="text-slate-300 hover:text-red-400 transition-colors p-1">
-                      <Trash2 size={14} />
-                    </button>
+              )}
+
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[13px] font-black text-indigo-400">
+                        {post.authorName.slice(0, 1)}
+                      </div>
+                      <span className="text-[15px] font-bold text-slate-300">{post.authorName}</span>
+                      <span className="text-[13px] text-slate-300 italic font-mono truncate max-w-[100px]">({post.authorUid.slice(0, 8)})</span>
+                    </div>
+                    {post.title && (
+                      <h4 className="text-[21px] font-black text-white tracking-tight">{post.title}</h4>
+                    )}
+                  </div>
+                  {(adminRole === 'manager' || post.authorUid === profile.uid) && (
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleStartEdit(post)} className="text-slate-300 hover:text-amber-500 transition-colors p-1">
+                        <Pencil size={14} />
+                      </button>
+                      {confirmDeleteId === post.id ? (
+                        <button onClick={() => handleDelete(post.id)} className="text-[13px] font-black text-rose-500 hover:text-rose-400 bg-rose-500/10 px-2 py-1 rounded transition-colors">
+                          삭제 확정
+                        </button>
+                      ) : (
+                        <button onClick={() => setConfirmDeleteId(post.id)} className="text-slate-300 hover:text-red-400 transition-colors p-1">
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
                   )}
+                </div>
+
+                {editingPostId === post.id ? (
+                  <div className="flex flex-col gap-3">
+                    <textarea
+                      value={editContent}
+                      onChange={e => setEditContent(e.target.value)}
+                      className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
+                      rows={4}
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => setEditingPostId(null)} className="p-2 text-slate-200 hover:bg-slate-800 rounded"><X size={16} /></button>
+                      <button onClick={() => handleSaveEdit(post.id)} className="p-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"><Check size={16} /></button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[17px] text-slate-300 whitespace-pre-wrap leading-relaxed mb-4 font-medium">
+                    {renderText(post.content)}
+                  </div>
+                )}
+
+                {post.image && (
+                  <div className="mb-4 rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-lg">
+                    <img
+                      src={post.image}
+                      alt="post content"
+                      className="w-full h-auto cursor-zoom-in brightness-90 hover:brightness-100 transition-all"
+                      onClick={() => window.open(post.image, '_blank')}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-[13px] text-slate-300 font-bold font-mono border-t border-slate-800/30 pt-4 uppercase tracking-widest">
+                  <span>{post.category === 'notice' ? '시스템 공지' : '자유 게시글'}</span>
+                  <div className="flex items-center gap-3">
+                    <span>{post.createdAt?.toDate ? format(post.createdAt.toDate(), 'yyyy.MM.dd HH:mm') : '동기화 중...'}</span>
+                    <button
+                      onClick={() => toggleComments(post.id)}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all"
+                    >
+                      <MessageSquare size={12} />
+                      <span>{totalCount > 0 ? totalCount : ''} 댓글</span>
+                      {isOpen ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Comments Section */}
+              {isOpen && (
+                <div className="border-t border-slate-800 bg-[#0f172a]/50">
+                  {/* Existing comments */}
+                  {postComments.length > 0 && (
+                    <div className="px-4 py-3 flex flex-col gap-3">
+                      {postComments.map(comment => {
+                        const replies = comments.filter(c => c.parentId === comment.id);
+                        return (
+                          <div key={comment.id}>
+                            {/* Comment */}
+                            <div className="flex gap-2 group/comment">
+                              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-[12px] font-black text-slate-300 shrink-0 mt-0.5">
+                                {comment.authorName.slice(0, 1)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-[13px] font-bold text-slate-200">{comment.authorName}</span>
+                                  <span className="text-[12px] text-slate-300 font-mono">
+                                    {comment.createdAt?.toDate ? format(comment.createdAt.toDate(), 'MM.dd HH:mm') : ''}
+                                  </span>
+                                </div>
+                                <p className="text-[14px] text-slate-300 leading-relaxed">{comment.content}</p>
+                                <div className="flex items-center gap-3 mt-1">
+                                  <button
+                                    onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                                    className="text-[12px] text-slate-300 hover:text-indigo-400 transition-colors flex items-center gap-1"
+                                  >
+                                    <CornerDownRight size={11} /> 답글
+                                  </button>
+                                  {(adminRole === 'manager' || comment.authorUid === profile.uid) && (
+                                    confirmDeleteCommentId === comment.id ? (
+                                      <button onClick={() => handleDeleteComment(comment.id)} className="text-[12px] text-rose-500 font-bold">삭제확정</button>
+                                    ) : (
+                                      <button onClick={() => setConfirmDeleteCommentId(comment.id)} className="text-[12px] text-slate-300 hover:text-rose-500 opacity-0 group-hover/comment:opacity-100 transition-all">
+                                        <Trash2 size={11} />
+                                      </button>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Replies */}
+                            {replies.length > 0 && (
+                              <div className="ml-8 mt-2 flex flex-col gap-2 border-l-2 border-slate-800 pl-3">
+                                {replies.map(reply => (
+                                  <div key={reply.id} className="flex gap-2 group/reply">
+                                    <div className="w-5 h-5 rounded bg-indigo-900/30 flex items-center justify-center text-[11px] font-black text-indigo-400 shrink-0 mt-0.5">
+                                      {reply.authorName.slice(0, 1)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-0.5">
+                                        <span className="text-[13px] font-bold text-slate-200">{reply.authorName}</span>
+                                        <span className="text-[12px] text-slate-300 font-mono">
+                                          {reply.createdAt?.toDate ? format(reply.createdAt.toDate(), 'MM.dd HH:mm') : ''}
+                                        </span>
+                                      </div>
+                                      <p className="text-[14px] text-slate-300 leading-relaxed">{reply.content}</p>
+                                      {(adminRole === 'manager' || reply.authorUid === profile.uid) && (
+                                        <div className="mt-0.5">
+                                          {confirmDeleteCommentId === reply.id ? (
+                                            <button onClick={() => handleDeleteComment(reply.id)} className="text-[12px] text-rose-500 font-bold">삭제확정</button>
+                                          ) : (
+                                            <button onClick={() => setConfirmDeleteCommentId(reply.id)} className="text-[12px] text-slate-300 hover:text-rose-500 opacity-0 group-hover/reply:opacity-100 transition-all">
+                                              <Trash2 size={11} />
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Reply input */}
+                            {replyingTo === comment.id && (
+                              <div className="ml-8 mt-2 flex gap-2">
+                                <input
+                                  autoFocus
+                                  type="text"
+                                  value={replyInputs[comment.id] || ''}
+                                  onChange={e => setReplyInputs(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleAddReply(post.id, comment.id); if (e.key === 'Escape') setReplyingTo(null); }}
+                                  placeholder="답글 입력..."
+                                  className="flex-1 bg-[#1e293b] border border-slate-700 rounded-lg px-3 py-1.5 text-[14px] text-white outline-none focus:border-indigo-500"
+                                />
+                                <button onClick={() => handleAddReply(post.id, comment.id)} className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors">
+                                  <Send size={13} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* New comment input */}
+                  <div className="px-4 pb-3 flex gap-2">
+                    <input
+                      type="text"
+                      value={commentInputs[post.id] || ''}
+                      onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                      onKeyDown={e => { if (e.key === 'Enter') handleAddComment(post.id); }}
+                      placeholder="댓글을 입력하세요..."
+                      className="flex-1 bg-[#1e293b] border border-slate-700 rounded-lg px-3 py-2 text-[14px] text-white outline-none focus:border-indigo-500"
+                    />
+                    <button onClick={() => handleAddComment(post.id)} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shrink-0">
+                      <Send size={14} />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
+          );
+        })}
 
-            {editingPostId === post.id ? (
-              <div className="flex flex-col gap-3">
-                <textarea 
-                  value={editContent} 
-                  onChange={e => setEditContent(e.target.value)}
-                  className="w-full p-3 bg-[#0f172a] border border-slate-700 rounded-xl text-[17px] text-white outline-none focus:border-indigo-500 font-medium resize-none"
-                  rows={4}
-                />
-                <div className="flex justify-end gap-2">
-                  <button onClick={() => setEditingPostId(null)} className="p-2 text-slate-200 hover:bg-slate-800 rounded"><X size={16} /></button>
-                  <button onClick={() => handleSaveEdit(post.id)} className="p-2 text-white bg-indigo-600 rounded hover:bg-indigo-500"><Check size={16} /></button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-[17px] text-slate-300 whitespace-pre-wrap leading-relaxed mb-4 font-medium">
-                {renderText(post.content)}
-              </div>
-            )}
-
-            {post.image && (
-              <div className="mb-4 rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-lg">
-                <img 
-                  src={post.image} 
-                  alt="post content" 
-                  className="w-full h-auto cursor-zoom-in brightness-90 hover:brightness-100 transition-all" 
-                  onClick={() => window.open(post.image, '_blank')}
-                />
-              </div>
-            )}
-
-            <div className="flex items-center justify-between text-[13px] text-slate-300 font-bold font-mono border-t border-slate-800/30 pt-4 uppercase tracking-widest">
-              <span>{post.category === 'notice' ? '시스템 공지' : '자유 게시글'}</span>
-              <span>{post.createdAt?.toDate ? format(post.createdAt.toDate(), 'yyyy.MM.dd HH:mm') : '동기화 중...'}</span>
-            </div>
-          </div>
-        ))}
         {filteredPosts.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center bg-[#1e293b] rounded-2xl border border-dashed border-slate-800">
             <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-300 mb-6 transition-transform">

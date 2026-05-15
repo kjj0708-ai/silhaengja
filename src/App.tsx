@@ -358,7 +358,7 @@ export default function App() {
         </header>
 
         {/* Main Workspace scrollable */}
-        <main className="flex-1 overflow-y-auto bg-[#0f172a] p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto bg-[#0f172a] p-6 pb-28 md:pb-6 lg:p-8 lg:pb-8">
           <div className="max-w-6xl mx-auto w-full flex flex-col gap-8">
             {activeTab === 'ranking' && <RankingBoard adminRole={adminRole} />}
             {activeTab === 'attendance' && <MeetingBoard userId={user.uid} adminRole={adminRole} profile={profile!} />}

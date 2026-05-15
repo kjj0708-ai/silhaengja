@@ -263,7 +263,20 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (existing().authorUid == request.auth.uid || isManager());
     }
 
-    match /{document=**} { 
+    match /post_comments/{commentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().keys().hasAll(['postId', 'content', 'authorUid', 'authorName', 'createdAt'])
+        && incoming().authorUid == request.auth.uid
+        && incoming().content is string && incoming().content.size() > 0 && incoming().content.size() <= 1000
+        && incoming().postId is string
+        && (incoming().get('parentId', null) == null || incoming().parentId is string)
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isSignedIn() && (existing().authorUid == request.auth.uid || isManager());
+    }
+
+    match /{document=**} {
       allow read, write: if false; 
     }
   }

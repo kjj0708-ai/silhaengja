@@ -348,25 +348,23 @@ export default function MeetingBoard({
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
            <h3 className="text-[16px] font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500"></span> 활성 오프라인 모임 명부
+              <span className="w-2 h-2 rounded-full bg-indigo-500"></span> 모임 신청
+              <span className="text-[13px] font-mono text-slate-300">({meetings.length})</span>
            </h3>
-           <div className="flex items-center gap-3">
-             <span className="text-[13px] font-mono text-slate-300">{meetings.length}개의 노드 발견됨</span>
-             <button
-               onClick={toggle}
-               title={notifEnabled ? '알림 끄기' : (permission === 'denied' ? '브라우저 알림이 차단됨' : '알림 켜기')}
-               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[13px] font-bold uppercase tracking-wider transition-all border ${
-                 notifEnabled
-                   ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-600/30'
-                   : permission === 'denied'
-                   ? 'bg-slate-800/50 text-slate-300 border-slate-700/50 cursor-not-allowed'
-                   : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white hover:border-slate-500'
-               }`}
-             >
-               {notifEnabled ? <Bell size={12} /> : <BellOff size={12} />}
-               {notifEnabled ? '알림 ON' : '알림 OFF'}
-             </button>
-           </div>
+           <button
+             onClick={toggle}
+             title={notifEnabled ? '알림 끄기' : (permission === 'denied' ? '브라우저 알림이 차단됨' : '알림 켜기')}
+             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[12px] font-bold transition-all border whitespace-nowrap ${
+               notifEnabled
+                 ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30 hover:bg-indigo-600/30'
+                 : permission === 'denied'
+                 ? 'bg-slate-800/50 text-slate-300 border-slate-700/50 cursor-not-allowed'
+                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white hover:border-slate-500'
+             }`}
+           >
+             {notifEnabled ? <Bell size={11} /> : <BellOff size={11} />}
+             알림{notifEnabled ? ' ON' : ' OFF'}
+           </button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -378,18 +376,13 @@ export default function MeetingBoard({
 
             return (
               <div key={m.id} className={`group bg-[#1e293b] rounded-xl border ${isRegistered ? 'border-indigo-500/50 ring-1 ring-indigo-500/20' : 'border-slate-800'} shadow-xl flex flex-col relative overflow-hidden transition-all hover:border-slate-700`}>
-                {m.closed && !isFull && (
-                  <div className="absolute top-0 left-0 bg-rose-700 text-white text-[17px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter flex items-center gap-1">
-                    <Lock size={9} /> 마감됨
-                  </div>
-                )}
                 {isFull && (
-                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[17px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
+                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[13px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
                     정원마감
                   </div>
                 )}
                 {isRegistered && (
-                   <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[17px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
+                   <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[13px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
                      참여 확정됨
                    </div>
                 )}
@@ -468,7 +461,11 @@ export default function MeetingBoard({
                       onClick={() => handleRegister(m)}
                       disabled={isClosed}
                       className={`w-full text-[15px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
-                        isClosed ? 'bg-slate-800 text-slate-300 cursor-not-allowed border border-slate-700' : 'bg-emerald-600 text-white hover:bg-emerald-500'
+                        isFull
+                          ? 'bg-slate-800 text-slate-300 cursor-not-allowed border border-slate-700'
+                          : m.closed
+                          ? 'bg-rose-600 text-white cursor-not-allowed border border-rose-500 shadow-rose-900/30'
+                          : 'bg-emerald-600 text-white hover:bg-emerald-500'
                       }`}
                     >
                       {isFull ? '정원 초과' : m.closed ? '신청 마감' : '참여 신청하기'}
