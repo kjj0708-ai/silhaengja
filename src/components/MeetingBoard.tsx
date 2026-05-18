@@ -376,16 +376,6 @@ export default function MeetingBoard({
 
             return (
               <div key={m.id} className={`group bg-[#1e293b] rounded-xl border ${isRegistered ? 'border-indigo-500/50 ring-1 ring-indigo-500/20' : 'border-slate-800'} shadow-xl flex flex-col relative overflow-hidden transition-all hover:border-slate-700`}>
-                {isFull && (
-                  <div className="absolute top-0 left-0 bg-amber-600 text-white text-[13px] font-black px-3 py-1 rounded-br-lg shadow-sm uppercase tracking-tighter">
-                    정원마감
-                  </div>
-                )}
-                {isRegistered && (
-                   <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[13px] font-black px-3 py-1 rounded-bl-lg shadow-sm uppercase tracking-tighter">
-                     참여 확정됨
-                   </div>
-                )}
 
                 <div className="p-4 flex flex-col gap-3">
                   {editingMeetingId === m.id ? (
@@ -422,8 +412,12 @@ export default function MeetingBoard({
                           <CalendarCheck size={11} className="text-slate-300" />{m.date}
                         </p>
                       </div>
-                      {/* 마감 버튼 / 마감 표시 박스 */}
-                      {adminRole === 'manager' && !isFull && (
+                      {/* 마감 뱃지 / 마감 버튼 */}
+                      {isFull ? (
+                        <span className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12px] font-black bg-amber-900/30 text-amber-400 border border-amber-700/40 uppercase tracking-tighter whitespace-nowrap">
+                          정원마감
+                        </span>
+                      ) : adminRole === 'manager' && (
                         m.closed ? (
                           /* 수동 마감 상태: 빨간 마감 박스 (클릭 시 해제) */
                           <button
