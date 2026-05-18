@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Users,
   CalendarCheck,
@@ -185,6 +185,9 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [renderError, setRenderError] = useState<string | null>(null);
 
+  // 뒤로가기 히스토리 관리 (ref 사용으로 stale closure 방지)
+  const tabHistoryRef = useRef<string[]>([]);
+
   const { profile, adminRole, createProfile, updateProfileInfo, loadingProfile } = useUserRole(user);
 
   useEffect(() => {
@@ -211,6 +214,44 @@ export default function App() {
       setRenderError(`인증 오류: ${error.message}`);
     });
     return () => unsubscribe();
+  }, []);
+
+  // 뒤로가기 처리: 앱 내 이전 탭으로, 없으면 종료 확인
+  useEffect(() => {
+    // 초기 진입 시 ghost 히스토리 엔트리 생성 (뒤로가기 감지용)
+    window.history.replaceState({ appEntry: true }, '');
+
+    const handlePopState = () => {
+      const history = tabHistoryRef.current;
+      if (history.length > 0) {
+        // 이전 탭으로 복귀
+        const prevTab = history[history.length - 1];
+        tabHistoryRef.current = history.slice(0, -1);
+        setActiveTab(prevTab);
+        // 다음 뒤로가기를 위한 ghost 엔트리 재추가
+        window.history.pushState({ appEntry: true }, '');
+      } else {
+        // 히스토리 없음 → 앱 종료 확인
+        if (window.confirm('앱을 종료하시겠습니까?')) {
+          window.history.go(-1); // 실제로 뒤로 이동 (PWA 종료)
+        } else {
+          window.history.pushState({ appEntry: true }, ''); // ghost 엔트리 복원
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 탭 전환 핸들러 (뒤로가기 히스토리 쌓기)
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(prev => {
+      if (prev === tab) return prev;
+      tabHistoryRef.current = [...tabHistoryRef.current, prev];
+      return tab;
+    });
+    window.history.pushState({ appEntry: true }, '');
   }, []);
 
   const navigation = useMemo(() => {
@@ -284,7 +325,7 @@ export default function App() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => handleTabChange(item.id)}
                 className={`w-full flex items-center gap-3 px-6 py-2.5 text-[15px] font-medium transition-all group ${
                   isActive 
                     ? 'bg-indigo-900/20 text-indigo-400 border-r-2 border-indigo-500' 
@@ -402,7 +443,7 @@ export default function App() {
           return (
              <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleTabChange(item.id)}
               className={`flex flex-col items-center p-2 rounded-lg text-[17px] font-bold transition-all ${
                 isActive ? 'text-indigo-400' : 'text-slate-300'
               }`}
