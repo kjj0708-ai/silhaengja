@@ -396,7 +396,7 @@ export default function MeetingBoard({
                       {/* 제목 + 날짜 */}
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-[19px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors truncate">{m.title}</h4>
+                          <h4 className="text-[19px] font-bold text-white tracking-tight leading-tight group-hover:text-indigo-400 transition-colors line-clamp-2">{m.title}</h4>
                           {adminRole === 'manager' && (
                             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                               <button onClick={() => handleStartEdit(m)} className="p-1 text-slate-300 hover:text-indigo-400 transition-colors"><Pencil size={11} /></button>
@@ -412,12 +412,8 @@ export default function MeetingBoard({
                           <CalendarCheck size={11} className="text-slate-300" />{m.date}
                         </p>
                       </div>
-                      {/* 마감 뱃지 / 마감 버튼 */}
-                      {isFull ? (
-                        <span className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12px] font-black bg-amber-900/30 text-amber-400 border border-amber-700/40 uppercase tracking-tighter whitespace-nowrap">
-                          정원마감
-                        </span>
-                      ) : adminRole === 'manager' && (
+                      {/* 마감 버튼 (관리자, 정원미달 시만) */}
+                      {!isFull && adminRole === 'manager' && (
                         m.closed ? (
                           /* 수동 마감 상태: 빨간 마감 박스 (클릭 시 해제) */
                           <button
@@ -456,13 +452,13 @@ export default function MeetingBoard({
                       disabled={isClosed}
                       className={`w-full text-[15px] font-bold px-5 py-2 rounded-lg transition-all shadow-lg uppercase tracking-widest active:scale-95 ${
                         isFull
-                          ? 'bg-slate-800 text-slate-300 cursor-not-allowed border border-slate-700'
+                          ? 'bg-amber-500/20 text-amber-400 cursor-not-allowed border border-amber-500/40 shadow-amber-900/20'
                           : m.closed
                           ? 'bg-rose-600 text-white cursor-not-allowed border border-rose-500 shadow-rose-900/30'
                           : 'bg-emerald-600 text-white hover:bg-emerald-500'
                       }`}
                     >
-                      {isFull ? '정원 초과' : m.closed ? '신청 마감' : '참여 신청하기'}
+                      {isFull ? '⚠ 정원 마감' : m.closed ? '신청 마감' : '참여 신청하기'}
                     </button>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
